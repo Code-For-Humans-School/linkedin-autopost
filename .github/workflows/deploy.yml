@@ -20,4 +20,4 @@ jobs:
       env:
         SSHPASS: ${{ secrets.SSH_PASS }}
       run: |
-        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'bash -s' < ./deploy.sh
+        sshpass -e "ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'bash -s' < ./deploy.sh
