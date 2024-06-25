@@ -9,7 +9,7 @@ This is an app that posts a linkedin post automatically when you make a commit t
 git clone https://github.com/Code-For-Humans-School/linkedin-autopost.git
 
 # Navigate to the project directory
-cd linkedin-autopost
+cd linkedin-autopost/server
 
 # Install dependencies
 npm install
