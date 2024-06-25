@@ -15,5 +15,5 @@ cd server
 # Install dependencies
 npm install
 
-# Restart the application (assuming you use PM2)
+# Restart the application
 pm2 restart all
