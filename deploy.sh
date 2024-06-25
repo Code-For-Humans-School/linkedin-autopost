@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Navigate to the project directory
-cd /home/tiger/projects/linkedin_autopost/github_team_implementation/linkedin-autopost/server
+# Navigate to the project root directory
+cd /home/tiger/projects/linkedin_autopost/github_team_implementation/linkedin-autopost
 
 # Pull the latest changes from the main branch
 git pull origin main
+
+
+cd server
 
 # Install dependencies
 npm install
