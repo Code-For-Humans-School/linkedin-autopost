@@ -22,6 +22,11 @@ app.get('/api', (req, res) => {
   console.log(req.path);
   res.json({ message: 'Hello from server!' });
 });
+
+app.get('/login', (req, res) => {
+  res.render('login', { title: 'Login' });
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
