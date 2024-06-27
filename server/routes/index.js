@@ -28,7 +28,7 @@ async function expandCommitMessage(commitMessage) {
 
 };
 
-/*  */
+/* */
 router.post('/webhook', async (req, res) => {
   console.log('The webhook has been invoked successfully.');
   const commitMessage = req.body.head_commit.message;
