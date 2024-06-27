@@ -115,3 +115,6 @@ ehthumbs.db
 # Temporary files
 tmp/
 temp/
+
+# pm2 config files
+ecosystem.config.js
