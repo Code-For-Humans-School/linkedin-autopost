@@ -55,7 +55,7 @@ function truncateMessageFromEnd(message, maxLength) {
 async function postToMastodon(messageToPost) {
   try {
     // Truncate the message if it's longer than 500 characters
-    const truncatedMessage = truncateMessageFromEnd(messageToPost);
+    const truncatedMessage = truncateMessageFromEnd(messageToPost, 500);
     const status = await masto.v1.statuses.create({
       status: truncatedMessage
     });
