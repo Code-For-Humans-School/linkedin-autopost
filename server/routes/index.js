@@ -35,11 +35,29 @@ async function expandCommitMessage(commitMessage) {
 
 };
 
+// Function to truncate the message to limit the message length
+function truncateMessageFromEnd(message, maxLength) {
+  if (message.length <= maxLength){
+    return message;
+  }
+
+  let words = message.split(' ');
+
+  while(message.length > maxLength) {
+    words.pop();
+    message = words.join(' ');
+  }
+
+  return message;
+};
+
 // Function to make a post on Mastodon
 async function postToMastodon(messageToPost) {
   try {
+    // Truncate the message if it's longer than 500 characters
+    const truncatedMessage = truncateMessageFromEnd(messageToPost);
     const status = await masto.v1.statuses.create({
-      status: messageToPost
+      status: truncatedMessage
     });
 
     console.log('Maston post has been posted, the URL to the post is: ', status.url);
