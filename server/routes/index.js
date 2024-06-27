@@ -46,7 +46,6 @@ router.post('/webhook', async (req, res) => {
   } catch (error) {
     // Log the error to the server
     console.error('Error processing webhook:', error);
-    res.render('error', { gpterror: error });
 
     // Send an error response to GitHub
     res.status(500).send('Internal Server Error');
