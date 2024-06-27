@@ -15,13 +15,8 @@ router.get('/', function(req, res, next) {
 // Function to expand commit message and generate a full post using ChatGPT API
 async function expandCommitMessage(commitMessage) {
   try {
-    // const response = await axios.post('https://api.openai.com/v1/engines/davinci/completions', {
-    //   prompt: commitMessage,
-    //   max_tokens: 150,
-    //   api_key: CHATGPT_API_KEY
-    // });
     const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: `You are a professional LinkedIn user, help me expand the following text into a full post that can be posted on LinkedIn, ${commitMessage}` }],
+      messages: [{ role: "system", content: `You are a professional LinkedIn user, help me expand the following text into a full post that can be posted on LinkedIn. Remember that you are an experienced software engineer and you are collaborating with teammates all cross the globe. Each teammate can push a commit to the code base, so when you try to expand the commit message, you should use we, instead of I, since this is the official LinkedIn account of the whole team. Below is the commit message to be expanded: ${commitMessage}` }],
       model: "gpt-4o",
     });
 
@@ -41,10 +36,8 @@ router.post('/webhook', async (req, res) => {
 
   try {
     // Expand the commit message into a full post
-    const expandedMessage = await expandCommitMessage(`Expand the following text into a LinkedIn post, ${commitMessage}`);
+    const expandedMessage = await expandCommitMessage(commitMessage);
     console.log('Expanded Message:', expandedMessage);
-    res.render('index', { gptprompt: commitMessage })
-    res.render('index', { gptmessage: expandedMessage });
     
     // Post to LinkedIn
 
