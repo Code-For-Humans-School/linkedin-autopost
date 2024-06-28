@@ -36,19 +36,27 @@ async function expandCommitMessage(commitMessage) {
 };
 
 // Function to truncate the message to limit the message length
+// Although I've set the limit in the ChatGPT prompt, the generated posts sometimes still exceed the length limit
 function truncateMessageFromEnd(message, maxLength) {
   if (message.length <= maxLength){
     return message;
   }
 
+  // I truncate the message string word by word instead of character by character,
+  // so here I wrap all the words in the message string into an array
   let words = message.split(' ');
+  let difference = message.length - maxLength;
 
-  while(message.length > maxLength) {
-    words.pop();
-    message = words.join(' ');
+  while(difference > 0 && words.length > 0) {
+    // Get the last word of the array and pop it from the array
+    let lastWord = words.pop();
+    
+    // Subtract the length of the word plus one for the sapace between two words
+    difference -= (lastWord.length + 1);
   }
 
-  return message;
+  // Join the remaining words to form the truncated message
+  return words.join(' ');
 };
 
 // Function to make a post on Mastodon
