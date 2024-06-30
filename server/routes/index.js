@@ -4,6 +4,7 @@ var axios = require('axios');
 require('dotenv').config();
 var OpenAI = require('openai');
 const { createRestAPIClient } = require('masto');
+const pool = require('../db.js');  // Import the MySQL connection pool
 
 // Initialize OpenAI with the API key
 const openai = new OpenAI();
@@ -16,7 +17,21 @@ const masto = createRestAPIClient({
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express' }); 
+});
+
+// Route to save access tokens
+router.post('/save-tokens', async (req, res) => {
+  const { githubToken, mastodonToken } = req.body;
+
+  try {
+    const [rows, fields] = await pool.query('INSERT INTO access_tokens (github_token, mastodon_token) VALUES (?, ?)', [githubToken, mastodonToken]);
+
+    res.status(200).json({ message: 'Tokens saved successfully' });
+  } catch (error) {
+    console.error('Error saving tokens:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Function to expand commit message and generate a full post using ChatGPT API
