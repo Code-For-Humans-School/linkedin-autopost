@@ -18,10 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/api', (req, res) => {
-  console.log(req.path);
-  res.json({ message: 'Hello from server!' });
-});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
