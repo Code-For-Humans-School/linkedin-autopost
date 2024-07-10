@@ -9,7 +9,8 @@ block content
 
         .d-flex.flex-column.align-items-center
           if error == 'githubAuthFailed'
-            p.text-danger.mb-3 GitHub authorization failed! Please try again!
+            p.text-danger.mb-1 GitHub authorization failed!
+            p.text-danger.mb-3 Please try again!
 
           if githubUsername
             button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
