@@ -45,6 +45,9 @@ router.get('/github/callback', async (req, res) => {
         const githubUsername = githubResponse.data.login;
         console.log(githubResponse.data);
         console.log(githubUsername);
+
+        // Redirect to the registration page with the GitHub username
+        res.redirect(`/users/register?githubUsername=${githubUsername}`);
     } catch (error) {
         console.error('Error during gitHub authentication:', error);
         res.status(500).json({ message: 'Internal Server Error' });

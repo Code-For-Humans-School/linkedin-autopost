@@ -8,9 +8,15 @@ block content
         p.text-white-50.mb-5 Please finish the following authorizations!
 
         .d-flex.flex-column.align-items-center
-          button.btn.btn-outline-light.btn-lg.mb-3.w-100(type='button' onclick="window.location.href='/auth/github'")
-            i.fab.fa-github.fa-lg(style='margin-right: 8px')
-            | Authorize Github
+            if githubUsername
+                button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
+                i.fab.fa-github.fa-lg(style='margin-right: 8px')
+                | GitHub Authorized
+            else
+                button.btn.btn-outline-light.btn-lg.mb-3.w-100(type='button' onclick="window.location.href='/auth/github'")
+                i.fab.fa-github.fa-lg(style='margin-right: 8px')
+                | Authorize GitHub
+          
           button.btn.btn-outline-light.btn-lg.w-100(type='button' onclick="window.location.href='/auth/linkedin'")
             i.fab.fa-linkedin.fa-lg(style='margin-right: 8px') 
             | Authorize LinkedIn
