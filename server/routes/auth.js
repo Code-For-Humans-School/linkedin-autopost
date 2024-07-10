@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 require('dotenv').config();
+const pool = require('../db.js');  // Import the MySQL connection pool
 
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
@@ -32,19 +33,23 @@ router.get('/github/callback', async (req, res) => {
                 Accept: 'application/json'
             },
         });
-
+        // Extract the access token
         const accessToken = tokenResponse.data.access_token;
 
-        // Fetch user information from GitHub
+        // Fetch user information from GitHub using the fetched access token
         const githubResponse = await axios.get('https://api.github.com/user', {
             headers: {
                 Authorization: `token ${accessToken}`
             }
         });
-    
+        // Extract the user's GitHub username
         const githubUsername = githubResponse.data.login;
         console.log(githubResponse.data);
         console.log(githubUsername);
+
+        // Store Github username and access token in session for later use with LinkedIn OAuth
+        req.session.githubUsername = githubUsername;
+        req.session.githubAccessToken = accessToken;
 
         // Redirect to the registration page with the GitHub username
         res.redirect(`/users/register?githubUsername=${githubUsername}`);
@@ -54,6 +59,8 @@ router.get('/github/callback', async (req, res) => {
         res.redirect(`/users/register?error=githubAuthFailed`);
     }
 });
+
+
 
 
 module.exports = router;
