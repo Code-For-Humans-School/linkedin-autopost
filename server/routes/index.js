@@ -2,10 +2,10 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 require('dotenv').config();
-// var OpenAI = require('openai');
+var OpenAI = require('openai');
 
 // const CHATGPT_API_KEY = process.env.CHATGPT_API_KEY;
-// const openai = new OpenAI();
+const openai = new OpenAI();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
