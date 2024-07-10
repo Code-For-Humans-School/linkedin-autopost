@@ -23,15 +23,11 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hello from server!' });
 });
 
-app.get('/login', (req, res) => {
-  res.render('login', { title: 'Login' });
-});
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
   
 module.exports = app;
