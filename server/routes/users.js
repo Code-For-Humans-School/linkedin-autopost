@@ -13,8 +13,8 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-  const { githubUsername } = req.query;
-  res.render('register', { githubUsername });
+  const { githubUsername, error } = req.query;
+  res.render('register', { githubUsername, error });
 });
 
 async function getUserRepositories(githubToken) {

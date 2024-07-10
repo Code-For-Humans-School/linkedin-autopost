@@ -8,6 +8,9 @@ block content
         p.text-white-50.mb-5 Please finish the following authorizations!
 
         .d-flex.flex-column.align-items-center
+          if error == 'githubAuthFailed'
+            p.text-danger.mb-3 GitHub authorization failed! Please try again!
+
           if githubUsername
             button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
               i.fab.fa-github.fa-lg(style='margin-right: 8px')
