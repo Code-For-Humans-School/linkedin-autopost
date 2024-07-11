@@ -80,15 +80,17 @@ router.get('/linkedin/callback', async (req, res) => {
 
     try {
         // Exchange the authorization code for an access token
-        const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', querystring.stringify({
+        const params = new URLSearchParams({
             grant_type: 'authorization_code',
             code,
             client_id: LINKEDIN_CLIENT_ID,
             client_secret: LINKEDIN_CLIENT_SECRET,
             redirect_uri: LINKEDIN_CALLBACK_URL
-        }), {
+        }).toString();
+
+        const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', params, {
             headers: {
-                'Content-Type' : 'x-www-form-urlencoded',
+                'Content-Type' : 'application/x-www-form-urlencoded',
             }
         });
 
@@ -117,7 +119,7 @@ router.get('/linkedin/callback', async (req, res) => {
         console.error('Error during LinkedIn authentication:', error);
         // If the authorization process failed, redirect the user back to the registration page with an error message
         // Since the user has already done the GitHub authorization, we need to include the githubUsername here
-        res.redirect(`/users/register?githubUsername=${githubUsername}&error=linkedinAuthFailed`);
+        res.redirect(`/users/register?githubUsername=${req.session.githubUsername}&error=linkedinAuthFailed`);
     }
 });
 
