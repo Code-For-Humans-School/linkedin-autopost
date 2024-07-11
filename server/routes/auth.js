@@ -67,10 +67,16 @@ router.get('/github/callback', async (req, res) => {
 
 // Redirect the user to LinkedIn's OAuth page 
 router.get('/linkedin', (req, res) => {
-    // Need to add the scope w_member_social in order to make posts on behalf of the user
-    const linkedinAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(LINKEDIN_CALLBACK_URL)}&scope=liteprofile%20emailaddress%20w_member_social`;
+    try {
+        // Need to add the scope w_member_social in order to make posts on behalf of the user
+        const linkedinAuthUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(LINKEDIN_CALLBACK_URL)}&scope=liteprofile%20emailaddress%20w_member_social`;
 
-    res.redirect(linkedinAuthUrl);
+        res.redirect(linkedinAuthUrl);
+    } catch (error) {
+        console.error('Error during LinkedIn authorization:', error);
+        // Redirect the user back to the registration page
+        res.redirect(`/users/register?githubUsername=${req.session.githubUsername}&error=linkedinAuthFailed`);
+    }
 });
 
 // Handle the callback from LinkedIn and exchange the authorization code for an access token
@@ -116,7 +122,7 @@ router.get('/linkedin/callback', async (req, res) => {
         res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
 
     } catch (error) {
-        console.error('Error during LinkedIn authentication:', error);
+        console.error('Error during LinkedIn access token exchanging:', error);
         // If the authorization process failed, redirect the user back to the registration page with an error message
         // Since the user has already done the GitHub authorization, we need to include the githubUsername here
         res.redirect(`/users/register?githubUsername=${req.session.githubUsername}&error=linkedinAuthFailed`);
