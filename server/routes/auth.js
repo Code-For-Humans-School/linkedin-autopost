@@ -4,7 +4,8 @@ const router = express.Router();
 const querystring = require('querystring');
 require('dotenv').config();
 const pool = require('../db.js');  // Import the MySQL connection pool
-
+const jwt = require('jsonwebtoken'); // used to decode the id_token(JWT token) and extract user's LinkedIn profile information
+const jwksClient = require('jwks-rsa');
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
@@ -81,6 +82,18 @@ router.get('/linkedin', (req, res) => {
     }
 });
 
+// Helper function to get the sigining key from LinkedIn
+const client = jwksClient({
+    jwksUri: 'https://www.linkedin.com/oauth/openid/jwks'
+});
+
+function getKey(header, callback) {
+    client.getSigningKey(header.kid, function (err, key) {
+        const signingKey = key.publicKey || key.rsaPublicKey;
+        callback(null, signingKey);
+    });
+};
+
 // Handle the callback from LinkedIn and exchange the authorization code for an access token
 router.get('/linkedin/callback', async (req, res) => {
     // Extract the temporary authorization code from LinkedIn
@@ -105,14 +118,38 @@ router.get('/linkedin/callback', async (req, res) => {
         // Extract the access token from the response data
         const accessToken = tokenResponse.data.access_token; // Valid within 60 days
         console.log(tokenResponse.data);
+        const openidToken = tokenResponse.data.id_token;
+
+        // Verify the JWT openid token and extract user data from it
+        var decodedUserData;
+        jwt.verify(openidToken, getKey, (err, decoded) => {
+            if (err) {
+                console.error('Error verifying openid token:', err);
+                res.redirect(`/users/register?githubUsername=${req.session.githubUsername}&error=openidTokenVerificationFailed`);
+            }
+
+            // Access verified claims
+            decodedUserData = decoded;
+            // const { sub, name, email, picture } = decoded;
+        });
+
+        const { sub } = decodedUserData;
+        const linkedinId = sub; // user id
+        console.log(decodedUserData);
 
         // Now we can use the access token to fetch the user's profile information
-        const profileResponse = await axios.get('https://api.linkedin.com/v2/me', {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-        const linkedinId = profileResponse.data.id;
+        // data: {
+        //     status: 403,
+        //     serviceErrorCode: 100,
+        //     code: 'ACCESS_DENIED',
+        //     message: 'Not enough permissions to access: me.GET.NO_VERSION'
+        // }
+        // const profileResponse = await axios.get('https://api.linkedin.com/v2/me', {
+        //     headers: {
+        //         Authorization: `Bearer ${accessToken}`
+        //     }
+        // });
+        // const linkedinId = profileResponse.data.id;
 
         // Retrieve the github credentials from session store and save all of them in local DB
         const { githubUsername, githubAccessToken } = req.session;
