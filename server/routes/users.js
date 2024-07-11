@@ -9,6 +9,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/login', (req, res) => {
+  const { error } = req.query;
   res.render('login', { error, title: 'Login' });
 });
 
