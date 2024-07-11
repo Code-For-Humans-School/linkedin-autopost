@@ -34,10 +34,7 @@ app.use(session({
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
-  }
+  cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
 }));
 
 // Body parser middleware
