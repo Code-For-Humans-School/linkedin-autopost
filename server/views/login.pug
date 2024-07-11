@@ -11,9 +11,6 @@ block content
           if error == 'githubLoginFailed'
             p.text-danger.mb-1 GitHub auto-login failed!
             p.text-danger.mb-3 Please try the following options again!
-          else if error == 'databaseError'
-            p.text-danger.mb-1 Database query error!
-            p.text-danger.mb-3 Please try the following options again!
           else if error == 'sessionError'
             p.text-danger.mb-1 Session error! 
             p.text-danger.mb-3 Please try the following options again!

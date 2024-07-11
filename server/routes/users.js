@@ -21,34 +21,35 @@ router.get('/login/now', async (req, res) => {
 
     console.log('githubUsername fetched from the query string: ', githubUsername);
 
-    pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername], (error, results) => {
-      if (error) {
-        console.error('Database query error:', error);
-        return res.redirect('/users/login?error=databaseError');
-      }
+    const results = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
 
-      if (results.length > 0) {
+    if (results.length > 0) {
 
-        console.log('user info fetched from DB using githubUsername: ', results[0]);
+      console.log('user info fetched from DB using githubUsername: ', results[0]);
 
-        // Save the user info in the session store
-        req.session.user = results[0];
-        req.session.save((err) => {
-          if (err) {
-            console.error('Session save error:', err);
-            return res.redirect('/users/login?error=sessionError');
-          } else {
-            console.log('Session for login-now user info saved successfully!');
-          }
-          // Once successfully saved the user info, redirect the user to the main page
-          res.redirect('/');
-        });
+      // Save the user info in the session store
+      req.session.user = results[0];
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.redirect('/users/login?error=sessionError');
+        } else {
+          console.log('Session for login-now user info saved successfully!');
+        }
+        // Once successfully saved the user info, redirect the user to the main page
+        res.redirect('/');
+      });
 
-      } else {
-        res.redirect('/users/register?error=userNotFound');
-      }
+    } else {
+      res.redirect('/users/register?error=userNotFound');
+    }
 
-    });
+    // pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername], (error, results) => {
+    //   if (error) {
+    //     console.error('Database query error:', error);
+    //     return res.redirect('/users/login?error=databaseError');
+    //   }
+    // });
 
   } catch (error) {
     console.error('Error during login with GitHub username directly!', error);
