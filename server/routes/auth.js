@@ -119,9 +119,10 @@ router.get('/linkedin/callback', async (req, res) => {
         const accessToken = tokenResponse.data.access_token; // Valid within 60 days
         console.log(tokenResponse.data);
         const openidToken = tokenResponse.data.id_token;
+        console.log('Received openid token:', openidToken);
 
         // Verify the JWT openid token and extract user data from it
-        var decodedUserData;
+        // var decodedUserData;
         jwt.verify(openidToken, getKey, (err, decoded) => {
             if (err) {
                 console.error('Error verifying openid token:', err);
@@ -129,13 +130,25 @@ router.get('/linkedin/callback', async (req, res) => {
             }
 
             // Access verified claims
-            decodedUserData = decoded;
-            // const { sub, name, email, picture } = decoded;
+            // decodedUserData = decoded;
+            const { sub, name, email, picture } = decoded;
+            const linkedinId = sub; // user id
+            console.log('Decoded user data:', decoded);
+
+            // Retrieve the github credentials from session store and save all of them in local DB
+            const { githubUsername, githubAccessToken } = req.session;
+            pool.query(
+                'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
+                [githubUsername, linkedinId, githubAccessToken, accessToken]
+            );
+
+            // Redirect to the registration page with the GitHub username and LinkedIn id
+            res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
         });
 
-        const { sub } = decodedUserData;
-        const linkedinId = sub; // user id
-        console.log(decodedUserData);
+        // const { sub } = decodedUserData;
+        // const linkedinId = sub; // user id
+        // console.log(decodedUserData);
 
         // Now we can use the access token to fetch the user's profile information
         // data: {
@@ -150,16 +163,6 @@ router.get('/linkedin/callback', async (req, res) => {
         //     }
         // });
         // const linkedinId = profileResponse.data.id;
-
-        // Retrieve the github credentials from session store and save all of them in local DB
-        const { githubUsername, githubAccessToken } = req.session;
-        await pool.query(
-            'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
-            [githubUsername, linkedinId, githubAccessToken, accessToken]
-        );
-
-        // Redirect to the registration page with the GitHub username and LinkedIn id
-        res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
 
     } catch (error) {
         console.error('Error during LinkedIn access token exchanging:', error);
