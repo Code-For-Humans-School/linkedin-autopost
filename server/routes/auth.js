@@ -88,7 +88,7 @@ router.get('/linkedin/callback', async (req, res) => {
         // Exchange the authorization code for an access token
         const params = new URLSearchParams({
             grant_type: 'authorization_code',
-            code,
+            code: code,
             client_id: LINKEDIN_CLIENT_ID,
             client_secret: LINKEDIN_CLIENT_SECRET,
             redirect_uri: LINKEDIN_CALLBACK_URL
