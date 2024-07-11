@@ -104,6 +104,7 @@ router.get('/linkedin/callback', async (req, res) => {
 
         // Extract the access token from the response data
         const accessToken = tokenResponse.data.access_token; // Valid within 60 days
+        console.log(tokenResponse.data);
 
         // Now we can use the access token to fetch the user's profile information
         const profileResponse = await axios.get('https://api.linkedin.com/v2/me', {
