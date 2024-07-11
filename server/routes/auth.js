@@ -98,6 +98,7 @@ function getKey(header, callback) {
 router.get('/linkedin/callback', async (req, res) => {
     // Extract the temporary authorization code from LinkedIn
     const { code } = req.query;
+    const { githubUsername, githubAccessToken } = req.session;
 
     try {
         // Exchange the authorization code for an access token
@@ -126,7 +127,7 @@ router.get('/linkedin/callback', async (req, res) => {
         jwt.verify(openidToken, getKey, (err, decoded) => {
             if (err) {
                 console.error('Error verifying openid token:', err);
-                res.redirect(`/users/register?githubUsername=${req.session.githubUsername}&error=openidTokenVerificationFailed`);
+                res.redirect(`/users/register?githubUsername=${githubUsername}&error=openidTokenVerificationFailed`);
             }
 
             // Access verified claims
@@ -134,9 +135,11 @@ router.get('/linkedin/callback', async (req, res) => {
             const { sub, name, email, picture } = decoded;
             const linkedinId = sub; // user id
             console.log('Decoded user data:', decoded);
+            console.log('Github username fetched from session store:', githubUsername);
+            console.log('Github access token fetched from session store:', githubAccessToken);
 
             // Retrieve the github credentials from session store and save all of them in local DB
-            const { githubUsername, githubAccessToken } = req.session;
+            
             pool.query(
                 'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
                 [githubUsername, linkedinId, githubAccessToken, accessToken]
