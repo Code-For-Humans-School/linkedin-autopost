@@ -11,15 +11,26 @@ block content
           if error == 'githubAuthFailed'
             p.text-danger.mb-1 GitHub authorization failed!
             p.text-danger.mb-3 Please try again!
+          else if error == 'linkedinAuthFailed'
+            p.text-danger.mb-1 LinkedIn authorization failed!
+            p.text-danger.mb-3 Please try again!
 
           if githubUsername
             button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
               i.fab.fa-github.fa-lg(style='margin-right: 8px')
               | GitHub Authorized
 
-            button.btn.btn-outline-light.btn-lg.w-100(type='button' onclick="window.location.href='/auth/linkedin'")
-              i.fab.fa-linkedin.fa-lg(style='margin-right: 8px') 
-              | Authorize LinkedIn
+            if linkedinId
+              button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
+                i.fab.fa-github.fa-lg(style='margin-right: 8px')
+                | LinkedIn Authorized
+              button.btn.btn-primary.btn-lg.w-100(type='button' onclick="window.location.href='/users/login'")
+                i.fas.fa-sign-in-alt.fa-lg(style='margin-right: 8px')
+                | Login Now
+            else 
+              button.btn.btn-outline-light.btn-lg.w-100(type='button' onclick="window.location.href='/auth/linkedin'")
+                i.fab.fa-linkedin.fa-lg(style='margin-right: 8px') 
+                | Authorize LinkedIn
           else
             button.btn.btn-outline-light.btn-lg.w-100(type='button' onclick="window.location.href='/auth/github'")
               i.fab.fa-github.fa-lg(style='margin-right: 8px')
