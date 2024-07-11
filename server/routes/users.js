@@ -4,9 +4,9 @@ var axios = require('axios');
 const pool = require('../db.js');  // Import the MySQL connection pool
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+// router.get('/', function(req, res, next) {
+//   res.send('respond with a resource');
+// });
 
 router.get('/login', (req, res) => {
   const { error } = req.query;
@@ -18,7 +18,7 @@ router.get('/login', (req, res) => {
 router.get('/login/now', async (req, res) => {
   try {
     const { githubUsername } = req.query;
-    await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername], (error, results) => {
+    pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername], (error, results) => {
       if (error) {
         console.error('Database query error:', error);
         return res.redirect('/users/login?error=databaseError');
