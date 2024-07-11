@@ -56,6 +56,13 @@ router.get('/github/callback', async (req, res) => {
         // Store Github username and access token in session for later use with LinkedIn OAuth
         req.session.githubUsername = githubUsername;
         req.session.githubAccessToken = accessToken;
+        req.session.save((err) => {
+            if (err) {
+                console.log('Error saving session data:', err);
+            } else {
+                console.log('Session data saved successfully.');
+            }
+        });
 
         // Redirect to the registration page with the GitHub username
         res.redirect(`/users/register?githubUsername=${githubUsername}`);
