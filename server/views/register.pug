@@ -17,6 +17,9 @@ block content
           else if error == 'openidTokenVerificationFailed'
             p.text-danger.mb-1 OpenId Token verification failed!
             p.text-danger.mb-3 Please try again!
+          else if error == 'userNotFound'
+            p.text-danger.mb-1 User info can't be found using GitHub username! 
+            p.text-danger.mb-3 Please try registering an account first!
 
           if githubUsername
             button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
@@ -27,7 +30,7 @@ block content
               button.btn.btn-success.btn-lg.mb-3.w-100(type='button' disabled)
                 i.fab.fa-github.fa-lg(style='margin-right: 8px')
                 | LinkedIn Authorized
-              button.btn.btn-primary.btn-lg.w-100(type='button' onclick="window.location.href='/users/login'")
+              button.btn.btn-primary.btn-lg.w-100(type='button' onclick=`window.location.href='/users/login/now?githubUsername=${githubUsername}'`)
                 i.fas.fa-sign-in-alt.fa-lg(style='margin-right: 8px')
                 | Login Now
             else 

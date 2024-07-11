@@ -9,8 +9,44 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/login', (req, res) => {
-  res.render('login', { title: 'Login' });
+  res.render('login', { error, title: 'Login' });
 });
+
+// Once finished the authorizatio process during registration, the user can directly login via GitHub username,
+// instead of going through the normal login workflow and try to gain authorization from GitHub or LinkedIn again.
+router.get('/login/now', async (req, res) => {
+  try {
+    const { githubUsername } = req.query;
+    await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername], (error, results) => {
+      if (error) {
+        console.error('Database query error:', error);
+        return res.redirect('/users/login?error=databaseError');
+      }
+
+      if (results.length > 0) {
+        // Save the user info in the session store
+        req.session.user = results[0];
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.redirect('/users/login?error=sessionError');
+          }
+          // Once successfully saved the user info, redirect the user to the main page
+          res.redirect('/');
+        });
+
+      } else {
+        res.redirect('/users/register?error=userNotFound');
+      }
+
+    });
+
+  } catch (error) {
+    console.error('Error during login with GitHub username directly!', error);
+    res.redirect('/users/login?error=githubLoginFailed');
+  }
+});
+
 
 router.get('/register', (req, res) => {
   const { githubUsername, linkedinId, error } = req.query;

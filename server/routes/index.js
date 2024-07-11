@@ -16,7 +16,16 @@ const masto = createRestAPIClient({
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' }); 
+  // Try to fetch the user's login info, if not eixsting, redirect to the login page
+  const userInfo = req.session.user;
+
+  if (!userInfo) {
+    return res.redirect('/users/login');
+  }
+  // Actually, I'd like to see what's inside userInfo
+  console.log('userInfo contents fetched from session store:', userInfo);
+
+  res.render('index', { title: 'Express', userInfo: userInfo}); 
 });
 
 // Function to expand commit message and generate a full post using ChatGPT API

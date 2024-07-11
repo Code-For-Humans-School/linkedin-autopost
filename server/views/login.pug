@@ -8,6 +8,15 @@ block content
         p.text-white-50.mb-5 Please log in using one of the following options!
 
         .d-flex.flex-column.align-items-center
+          if error == 'githubLoginFailed'
+            p.text-danger.mb-1 GitHub auto-login failed!
+            p.text-danger.mb-3 Please try the following options again!
+          else if error == 'databaseError'
+            p.text-danger.mb-1 Database query error!
+            p.text-danger.mb-3 Please try the following options again!
+          else if error == 'sessionError'
+            p.text-danger.mb-1 Session error! 
+            p.text-danger.mb-3 Please try the following options again!
           button.btn.btn-outline-light.btn-lg.mb-3.w-100(type='button' onclick="window.location.href='/auth/login/github'")
             i.fab.fa-github.fa-lg(style='margin-right: 8px')
             | Login with Github
