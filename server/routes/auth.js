@@ -152,6 +152,16 @@ router.get('/linkedin/callback', async (req, res) => {
                 [githubUsername, linkedinId, githubAccessToken, accessToken]
             );
 
+            // Once it's done, there's no need to keep the session data, destroy them.
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error('Error destroying session data:', err);
+                } else {
+                    console.log('Session data destroyed successfully.');
+                }
+            });
+
+
             // Redirect to the registration page with the GitHub username and LinkedIn id
             res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
         });
