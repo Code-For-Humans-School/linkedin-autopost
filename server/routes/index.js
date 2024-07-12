@@ -18,6 +18,7 @@ const masto = createRestAPIClient({
 router.get('/', function(req, res, next) {
   // Try to fetch the user's login info, if not eixsting, redirect to the login page
   const userInfo = req.session.user;
+  const { error } = req.query;
 
   if (!userInfo) {
     return res.redirect('/users/login');
