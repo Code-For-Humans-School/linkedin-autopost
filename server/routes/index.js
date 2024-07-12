@@ -15,7 +15,7 @@ const masto = createRestAPIClient({
 });
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
   // Try to fetch the user's login info, if not eixsting, redirect to the login page
   const userInfo = req.session.user;
   const { error } = req.query;
@@ -26,8 +26,49 @@ router.get('/', function(req, res, next) {
   // Actually, I'd like to see what's inside userInfo
   console.log('userInfo contents fetched from session store:', userInfo);
 
-  res.render('index', { error, title: 'Express', userInfo: userInfo}); 
+  try {
+    // Once I have the userInfo, I wan to fetch all the repositories and show them.
+    const githubRepos = await fetchGitHubRepos(userInfo[0].github_token);
+    res.render('index', { error, title: 'Express', userInfo, githubRepos}); 
+
+  } catch (fetchError) {
+    console.error('Error while fetching GitHub repositories:', fetchError);
+    res.render('index', { error, title: 'Express', userInfo, githubRepos: [], githubRepoError: 'Error fetching repositories'}); 
+  }
+
 });
+
+// Function to fetch user's GitHub repositories
+async function fetchGitHubRepos(githubToken) {
+  try {
+    const response = await axios.get('https://api.github.com/user/repos', {
+      headers: {
+        Authorization: `token ${githubToken}`
+      },
+      params: {
+        visibility: 'all' // to get both public and private repositories
+      }
+    });
+
+    // Let's see what's inside the response.data
+    console.log('GitHub repo data:', response.data);
+    
+    // Extract general information from the response
+    const repos = response.data.map(repo => ({
+      name: repo.name,
+      description: repo.description,
+      language: repo.language,
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      private: repo.private,
+    }));
+
+    return repos;
+  } catch (error) {
+    console.error('Error fetching repositories:', error);
+    throw error;
+  }
+}
 
 // Function to expand commit message and generate a full post using ChatGPT API
 async function expandCommitMessage(commitMessage) {

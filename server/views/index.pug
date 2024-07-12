@@ -1,15 +1,36 @@
 extends layout
 
 block content
-  .container.d-flex.justify-content-center.align-items-center.min-vh-100
+  .container
     .text-center
       h1= title
       p Welcome to #{title}
 
       if error == 'logoutError'
         .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
+      if githubRepoError
+        .alert.alert-danger(role='alert') #{githubRepoError}
       if userInfo && userInfo.length > 0
         p Welcome our GitHub guest: #{userInfo[0].github_username}
         //- Logout Button
         a.btn.btn-danger(href='/users/logout') Log Out
 
+    //- Display GitHub Repositories
+    if githubRepos.length > 0
+      .row
+        each repo in githubRepos
+          .col-lg-4.col-md-6.col-sm-12.mb-4
+            .card
+              .card-body
+                h5.card-title= repo.name
+                if repo.private
+                  .badge.bg-warning.text-dark Private
+                else
+                  .badge.bg-success Public
+                p.card-text= repo.description
+                .d-flex.justify-content-between
+                  .badge.bg-primary Language: #{repo.language}
+                  .badge.bg-secondary Stars: #{repo.stars}
+                  .badge.bg-info Forks: #{repo.forks}
+    else 
+      .alert.alert-info(role='alert') No repositories found.
