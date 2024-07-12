@@ -56,6 +56,9 @@ router.get('/github/callback', async (req, res) => {
         // If such an account has already existed, login the user directly
         // Otherwise, save the GitHub credentials and proceed to create a new account 
         const results = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
+
+        console.log(`DB query results for the given githubusername ${githubUsername} :`, results);
+
         if (results.length > 0) {
             // Save the user info in the session store
             req.session.user = results[0];
