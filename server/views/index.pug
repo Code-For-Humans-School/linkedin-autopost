@@ -58,15 +58,15 @@ block content
               option(value=`/?page=1&per_page=30` selected=perPage==30) 30
               option(value=`/?page=1&per_page=50` selected=perPage==50) 50
           .pagination
-            if currentPage > 1
-              li.page-item
-                a.page-link(href=`/?page=${currentPage-1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-right: 5px; border-radius: 8px; box-shadow: none;") 
+            li.page-item
+              a.page-link(href=`/?page=${currentPage-1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-right: 5px; border-radius: 8px; box-shadow: none;")
+                if currentPage > 1 
                   i.bi.bi-arrow-left.custom-icon
                   span.d-none.d-sm-inline(style="margin-left: 3px;") Previous
-                   
-            if githubRepos.length == perPage
-              li.page-item
-                a.page-link(href=`/?page=${currentPage+1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-left: 5px; border-radius: 8px; box-shadow: none;")
+              
+            li.page-item
+              a.page-link(href=`/?page=${currentPage+1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-left: 5px; border-radius: 8px; box-shadow: none;")
+                if githubRepos.length == perPage
                   span.d-none.d-sm-inline(style="margin-right: 3px;") Next  
                   i.bi.bi-arrow-right.custom-icon
 
