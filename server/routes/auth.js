@@ -55,13 +55,27 @@ router.get('/github/callback', async (req, res) => {
 
         // If such an account has already existed, login the user directly
         // Otherwise, save the GitHub credentials and proceed to create a new account 
-        const results = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
+        const [rows, fields] = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
 
-        console.log(`DB query results for the given githubusername ${githubUsername} :`, results);
+        console.log(`DB query rows for the given githubusername ${githubUsername} :`, rows);
+        console.log(`DB query fields for the given githubusername ${githubUsername} :`, fields);
+        // DB query results for the given githubusername arthurmorgan-dev : 
+        // [
+        //     [],
+        //     [
+        //         `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        //         `github_username` VARCHAR(255) UNIQUE_KEY,
+        //         `linkedin_id` VARCHAR(255) UNIQUE_KEY,
+        //         `github_token` TEXT,
+        //         `linkedin_token` TEXT,
+        //         `created_at` TIMESTAMP(19)
+        //     ]
+        // ]
 
-        if (results.length > 0) {
+        // DONOT use results.length > 0, since its length will always be greater than 0
+        if (rows.length > 0) { 
             // Save the user info in the session store
-            req.session.user = results[0];
+            req.session.user = rows;
             req.session.save((err) => {
                 if (err) {
                     console.error('Session save error:', err);
@@ -170,11 +184,12 @@ router.get('/linkedin/callback', async (req, res) => {
 
             // If such an account already exists, login the user directly
             try {
-                const results = await pool.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
-                console.log('Database query results when login via LinkedIn:', results);
+                const [rows, fields] = await pool.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
+                console.log('Database query rows when login via LinkedIn:', rows);
+                console.log('Database query fields when login via LinkedIn:', fields);
 
-                if (results.length > 0) {
-                    req.session.user = results[0];
+                if (rows.length > 0) {
+                    req.session.user = rows;
                     req.session.save((err) => {
                         if (err) {
                             console.error('Error during session store:', err);
