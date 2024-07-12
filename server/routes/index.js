@@ -135,7 +135,7 @@ router.post('/webhook', async (req, res) => {
   console.log(commitMessage);
 
   try {
-    // Expand the commit message into a full post
+    // Expand the commit message into a full post 
     const expandedMessage = await expandCommitMessage(commitMessage);
     console.log('Expanded Message:', expandedMessage);
     
