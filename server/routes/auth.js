@@ -151,7 +151,7 @@ router.get('/linkedin/callback', async (req, res) => {
 
         // Verify the JWT openid token and extract user data from it
         // var decodedUserData;
-        jwt.verify(openidToken, getKey, (err, decoded) => {
+        jwt.verify(openidToken, getKey, async (err, decoded) => {
             if (err) {
                 console.error('Error verifying openid token:', err);
                 res.redirect(`/users/register?githubUsername=${githubUsername}&error=openidTokenVerificationFailed`);
@@ -166,37 +166,45 @@ router.get('/linkedin/callback', async (req, res) => {
             console.log('Github access token fetched from session store:', githubAccessToken);
 
             // If such an account already exists, login the user directly
-            const results = pool.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
-            if (results.length > 0) {
-                req.session.user = results[0];
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Error during session store:', err);
-                        res.redirect('/users/login?error=sessionError');
-                    } else {
-                        console.log('Session saved successfully!');
-                        res.redirect('/');
-                    }
-                });
-            } else {
-                // Otherwise, retrieve the github credentials from session store and save all of them in local DB
-                pool.query(
-                    'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
-                    [githubUsername, linkedinId, githubAccessToken, accessToken]
-                );
+            try {
+                const results = await pool.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
+                console.log('Database query results when login via LinkedIn:', results);
 
-                // Once it's done, there's no need to keep the session data, destroy them.
-                req.session.destroy((err) => {
-                    if (err) {
-                        console.error('Error destroying session data:', err);
-                    } else {
-                        console.log('Session data destroyed successfully.');
-                    }
-                });
+                if (results.length > 0) {
+                    req.session.user = results[0];
+                    req.session.save((err) => {
+                        if (err) {
+                            console.error('Error during session store:', err);
+                            res.redirect('/users/login?error=sessionError');
+                        } else {
+                            console.log('Session saved successfully!');
+                            res.redirect('/');
+                        }
+                    });
+                } else {
+                    // Otherwise, retrieve the github credentials from session store and save all of them in local DB
+                    await pool.query(
+                        'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
+                        [githubUsername, linkedinId, githubAccessToken, accessToken]
+                    );
+    
+                    // Once it's done, there's no need to keep the session data, destroy them.
+                    req.session.destroy((err) => {
+                        if (err) {
+                            console.error('Error destroying session data:', err);
+                        } else {
+                            console.log('Session data destroyed successfully.');
+                        }
+                    });
+    
+                    // Redirect to the registration page with the GitHub username and LinkedIn id
+                    res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
+                }
 
-                // Redirect to the registration page with the GitHub username and LinkedIn id
-                res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
+            } catch (dbError) {
+                console.error('Database query error:', dbError);
             }
+
 
         });
 
