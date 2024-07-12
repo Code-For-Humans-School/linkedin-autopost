@@ -20,7 +20,7 @@ router.get('/', function(req, res, next) {
   const userInfo = req.session.user;
   const { error } = req.query;
 
-  if (!userInfo) {
+  if (!userInfo || userInfo.length == 0) {
     return res.redirect('/users/login');
   }
   // Actually, I'd like to see what's inside userInfo
