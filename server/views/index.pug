@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .container
+  .container-fluid
     .text-center
       h1= title
       p Welcome to #{title}
@@ -16,21 +16,58 @@ block content
         a.btn.btn-danger(href='/users/logout') Log Out
 
     //- Display GitHub Repositories
-    if githubRepos.length > 0
-      .row
+    if githubRepos && githubRepos.length > 0
+      .row.no-gutters
         each repo in githubRepos
-          .col-lg-4.col-md-6.col-sm-12.mb-4
-            .card
+          .col-lg-4.col-md-6.col-sm-12.mb-4.custom-col
+            .card.card-hover
               .card-body
-                h5.card-title= repo.name
-                if repo.private
-                  .badge.bg-warning.text-dark Private
-                else
-                  .badge.bg-success Public
-                p.card-text= repo.description
-                .d-flex.justify-content-between
-                  .badge.bg-primary Language: #{repo.language}
-                  .badge.bg-secondary Stars: #{repo.stars}
-                  .badge.bg-info Forks: #{repo.forks}
-    else 
+                h5.card-title
+                  span(style="color: #207fe0; font-weight: bold; margin-right: 5px;")= repo.name
+                  if repo.private
+                    span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Private
+                  else
+                    span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Public
+                p.card-text(style="color: #636c76;")= repo.description
+                .d-flex.align-items-center.flex-wrap
+                  if repo.language
+                    .badge.custom-badge(style="color: #776c76; display: flex; align-items: center; justify-content: center;")
+                      span.circle(style="background-color: #f1df62; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;")
+                      | #{repo.language}
+                  if repo.stars > 0
+                    .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center;")
+                      i.fas.fa-star(style="margin-right: 5px;")
+                      | #{repo.stars}
+                  if repo.forks > 0
+                    .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center")
+                      i.fas.fa-code-branch(style="margin-right: 5px;")
+                      | #{repo.forks}
+    else
       .alert.alert-info(role='alert') No repositories found.
+
+  //- Custom Styles
+  style.
+    .custom-badge:not(:first-child) {
+      margin-left: 0px;
+    }
+    .card-hover {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: scale(1.02);
+    }
+    .custom-col {
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    @media (max-width: 576px) {
+      .container-fluid {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+      .custom-col {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+    }
