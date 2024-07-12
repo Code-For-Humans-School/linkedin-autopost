@@ -46,7 +46,8 @@ async function fetchGitHubRepos(githubToken) {
         Authorization: `token ${githubToken}`
       },
       params: {
-        visibility: 'all' // to get both public and private repositories
+        visibility: 'all', // to get both public and private repositories
+        type: 'owner' // to ensure that only repositories owned by the authenticated user are returned.
       }
     });
 
@@ -64,7 +65,7 @@ async function fetchGitHubRepos(githubToken) {
 
       const webhooks = webhookResponse.data;
       console.log(`Webhooks data of ${repo.owner.login}'s repo ${repo.name} :`, webhooks);
-      
+
       let hasSetWebhook = false;
       if (webhooks.length === 0) {
         hasSetWebhook = false;
