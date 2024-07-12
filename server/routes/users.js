@@ -33,14 +33,14 @@ router.get('/login/now', async (req, res) => {
 
     console.log('githubUsername fetched from the query string: ', githubUsername);
 
-    const results = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
+    const [rows, fields] = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
 
-    if (results.length > 0) {
+    if (rows.length > 0) {
 
-      console.log('user info fetched from DB using githubUsername: ', results[0]);
+      console.log('user info fetched from DB using githubUsername: ', rows);
 
       // Save the user info in the session store
-      req.session.user = results[0];
+      req.session.user = rows;
       req.session.save((err) => {
         if (err) {
           console.error('Session save error:', err);
