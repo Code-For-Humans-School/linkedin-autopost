@@ -50,20 +50,25 @@ block content
 
       //- Pagination Component
       .pagination-container
-        .d-flex.justify-content-between.align-items-center
-          .form-group
-            label(for="perPageSelect") Repositories per page:
-            select.form-control#perPageSelect(name="per_page", onchange="location = this.value;")
+        .d-flex.flex-column.flex-sm-row.justify-content-between.align-items-end
+          .form-group.mb-2.mb-sm-0
+            label(for="perPageSelect", style="color: #636c76; font-weight: bolder; font-size: 16px; margin-bottom: 10px;") Repositories per page:
+            select.form-control#perPageSelect(name="per_page", onchange="location = this.value;", style="box-shadow: none;")
               option(value=`/?page=1&per_page=15` selected=perPage==15) 15
               option(value=`/?page=1&per_page=30` selected=perPage==30) 30
               option(value=`/?page=1&per_page=50` selected=perPage==50) 50
           .pagination
             if currentPage > 1
               li.page-item
-                a.page-link(href=`/?page=${currentPage-1}&per_page=${perPage}`) Previous
+                a.page-link(href=`/?page=${currentPage-1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-right: 5px; border-radius: 8px; box-shadow: none;") 
+                  i.bi.bi-arrow-left.custom-icon
+                  span.d-none.d-sm-inline(style="margin-left: 3px;") Previous
+                   
             if githubRepos.length == perPage
               li.page-item
-                a.page-link(href=`/?page=${currentPage+1}&per_page=${perPage}`) Next
+                a.page-link(href=`/?page=${currentPage+1}&per_page=${perPage}`, style="color: #207fe0; font-weight: bolder; margin-left: 5px; border-radius: 8px; box-shadow: none;")
+                  span.d-none.d-sm-inline(style="margin-right: 3px;") Next  
+                  i.bi.bi-arrow-right.custom-icon
 
   //- Custom Styles
   style.
@@ -87,10 +92,29 @@ block content
     .container-fluid {
       padding-left: 30px;
       padding-right: 30px;
+      padding-bottom: 60px;
     }
     @media (max-width: 576px) {
       .container-fluid {
         padding-left: 10px;
         padding-right: 10px;
       }
+      .pagination {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .form-group {
+        width: 100%;
+      }
+    }
+    .custom-icon {
+      font-size: 20px;
+      font-weight: bolder;
+      color: #207fe0;
+    }
+
+    .page-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
