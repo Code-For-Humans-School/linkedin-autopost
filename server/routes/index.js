@@ -52,7 +52,7 @@ async function fetchGitHubRepos(githubToken) {
 
     // Let's see what's inside the response.data
     console.log('GitHub repo data:', response.data);
-    
+
     // Extract general information from the response
     const repos = response.data.map(repo => ({
       name: repo.name,
@@ -130,6 +130,7 @@ async function postToMastodon(messageToPost) {
 /* */
 router.post('/webhook', async (req, res) => {
   console.log('The webhook has been invoked successfully.');
+  console.log('Data received from GitHub webhook:', req.body);
   const commitMessage = req.body.head_commit.message;
   console.log(commitMessage);
 
