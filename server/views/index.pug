@@ -25,12 +25,14 @@ block content
                 .card-body
                   h5.card-title
                     span(style="color: #207fe0; font-weight: bold; margin-right: 5px;")= repo.name
-                    if repo.private
-                      span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Private
-                    else
-                      span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Public
+                    if repo.hasSetWebhook
+                      i.bi.bi-check2-all(style="font-weight: bolder; font-size: 24px; color: green;")
                   p.card-text(style="color: #636c76;")= repo.description
                   .d-flex.align-items-center.flex-wrap
+                    if repo.private
+                      .badge.custom-badge(style="color: #636c76; font-weight: bold; border: 1px solid #d0d7de; border-radius: 10px;") Private
+                    else
+                      .badge.custom-badge(style="color: #636c76; font-weight: bold; border: 1px solid #d0d7de; border-radius: 10px;") Public
                     if repo.language
                       .badge.custom-badge(style="color: #776c76; display: flex; align-items: center; justify-content: center;")
                         span.circle(style="background-color: #f1df62; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;")

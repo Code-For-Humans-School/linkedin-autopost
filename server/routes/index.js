@@ -51,19 +51,40 @@ async function fetchGitHubRepos(githubToken) {
     });
 
     // Let's see what's inside the response.data
-    console.log('GitHub repo data:', response.data);
+    const userRepoData = response.data;
+    console.log('GitHub user repo data:', userRepoData);
 
     // Extract general information from the response
-    const repos = response.data.map(repo => ({
-      name: repo.name,
-      description: repo.description,
-      language: repo.language,
-      stars: repo.stargazers_count,
-      forks: repo.forks_count,
-      private: repo.private,
+    const extractedRepoData = await Promise.all(userRepoData.map( async repo => {
+      const webhookResponse = await axios.get(`https://api.github.com/repos/${repo.owner.login}/${repo.name}/hooks`, {
+        headers: {
+          Authorization: `token ${githubToken}`
+        }
+      });
+
+      const webhooks = webhookResponse.data;
+      console.log(`Webhooks data of ${repo.owner.login}'s repo ${repo.name} :`, webhooks);
+      
+      let hasSetWebhook = false;
+      if (webhooks.length === 0) {
+        hasSetWebhook = false;
+      } else {
+        hasSetWebhook = webhooks.some( hook => hook.config.url === process.env.GITHUB_WEBHOOK_PAYLOAD_URL && hook.config.content_type === 'json');
+      }
+
+      return {
+        name: repo.name,
+        description: repo.description,
+        language: repo.language,
+        stars: repo.stargazers_count,
+        forks: repo.forks_count,
+        private: repo.private,
+        hasSetWebhook: hasSetWebhook
+      };
+
     }));
 
-    return repos;
+    return extractedRepoData;
   } catch (error) {
     console.error('Error fetching repositories:', error);
     throw error;
