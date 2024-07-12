@@ -8,12 +8,24 @@ const pool = require('../db.js');  // Import the MySQL connection pool
 //   res.send('respond with a resource');
 // });
 
+router.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error during user log out:', err);
+      res.redirect('/?error=logoutError');
+    } else {
+      console.error('User has successfully logged out.');
+      res.redirect('/'); // Back to the main page
+    }
+  });
+});
+
 router.get('/login', (req, res) => {
   const { error } = req.query;
   res.render('login', { error, title: 'Login' });
 });
 
-// Once finished the authorizatio process during registration, the user can directly login via GitHub username,
+// Once finished the authorization process during registration, the user can directly login via GitHub username,
 // instead of going through the normal login workflow and try to gain authorization from GitHub or LinkedIn again.
 router.get('/login/now', async (req, res) => {
   try {

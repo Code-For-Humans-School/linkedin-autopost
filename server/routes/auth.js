@@ -53,19 +53,39 @@ router.get('/github/callback', async (req, res) => {
         console.log(githubResponse.data);
         console.log(githubUsername);
 
-        // Store Github username and access token in session for later use with LinkedIn OAuth
-        req.session.githubUsername = githubUsername;
-        req.session.githubAccessToken = accessToken;
-        req.session.save((err) => {
-            if (err) {
-                console.log('Error saving session data:', err);
-            } else {
-                console.log('Session data saved successfully.');
-            }
-        });
+        // If such an account has already existed, login the user directly
+        // Otherwise, save the GitHub credentials and proceed to create a new account 
+        const results = await pool.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
+        if (results.length > 0) {
+            // Save the user info in the session store
+            req.session.user = results[0];
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    res.redirect('/users/login?error=sessionError');
+                } else {
+                    console.log('Session saved successfully!');
+                    res.redirect('/');
+                }
+            });
+        } else {
+            // Store Github username and access token in session for later use with LinkedIn OAuth
+            req.session.githubUsername = githubUsername;
+            req.session.githubAccessToken = accessToken;
+            req.session.save((err) => {
+                if (err) {
+                    console.log('Error saving session data:', err);
+                } else {
+                    console.log('Session data saved successfully.');
+                    // Redirect to the registration page with the GitHub username
+                    res.redirect(`/users/register?githubUsername=${githubUsername}`);
+                }
+            });
+        }
 
-        // Redirect to the registration page with the GitHub username
-        res.redirect(`/users/register?githubUsername=${githubUsername}`);
+       
+
+
     } catch (error) {
         console.error('Error during gitHub authentication:', error);
         // If the authorization process failed, redirect the user to the registration page with an error message
@@ -145,25 +165,39 @@ router.get('/linkedin/callback', async (req, res) => {
             console.log('Github username fetched from session store:', githubUsername);
             console.log('Github access token fetched from session store:', githubAccessToken);
 
-            // Retrieve the github credentials from session store and save all of them in local DB
-            
-            pool.query(
-                'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
-                [githubUsername, linkedinId, githubAccessToken, accessToken]
-            );
+            // If such an account already exists, login the user directly
+            const results = pool.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
+            if (results.length > 0) {
+                req.session.user = results[0];
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Error during session store:', err);
+                        res.redirect('/users/login?error=sessionError');
+                    } else {
+                        console.log('Session saved successfully!');
+                        res.redirect('/');
+                    }
+                });
+            } else {
+                // Otherwise, retrieve the github credentials from session store and save all of them in local DB
+                pool.query(
+                    'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
+                    [githubUsername, linkedinId, githubAccessToken, accessToken]
+                );
 
-            // Once it's done, there's no need to keep the session data, destroy them.
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error('Error destroying session data:', err);
-                } else {
-                    console.log('Session data destroyed successfully.');
-                }
-            });
+                // Once it's done, there's no need to keep the session data, destroy them.
+                req.session.destroy((err) => {
+                    if (err) {
+                        console.error('Error destroying session data:', err);
+                    } else {
+                        console.log('Session data destroyed successfully.');
+                    }
+                });
 
+                // Redirect to the registration page with the GitHub username and LinkedIn id
+                res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
+            }
 
-            // Redirect to the registration page with the GitHub username and LinkedIn id
-            res.redirect(`/users/register?githubUsername=${githubUsername}&linkedinId=${linkedinId}`);
         });
 
         // const { sub } = decodedUserData;

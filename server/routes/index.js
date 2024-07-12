@@ -25,7 +25,7 @@ router.get('/', function(req, res, next) {
   // Actually, I'd like to see what's inside userInfo
   console.log('userInfo contents fetched from session store:', userInfo);
 
-  res.render('index', { title: 'Express', userInfo: userInfo}); 
+  res.render('index', { error, title: 'Express', userInfo: userInfo}); 
 });
 
 // Function to expand commit message and generate a full post using ChatGPT API
