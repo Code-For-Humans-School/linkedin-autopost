@@ -5,7 +5,7 @@ block content
   p Welcome to #{title}
 
   if error == 'logoutError'
-    .alert.alert-danger(role='alert') #{errorMessage}
+    .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
   if userInfo
     p Welcome our GitHub guest: #{userInfo[0].github_username}
     //- Logout Button
@@ -22,4 +22,4 @@ block content
             p Are you sure you want to log out?
           .modal-footer
             button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Cancel
-            a.btn.btn-danger(href='/logout') Confirm Log Out
+            a.btn.btn-danger(href='/users/logout') Confirm Log Out
