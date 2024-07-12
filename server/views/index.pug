@@ -2,48 +2,49 @@ extends layout
 
 block content
   .container-fluid
-    .text-center
-      h1= title
-      p Welcome to #{title}
+    .container.custom-container
+      .text-center
+        h1= title
+        p Welcome to #{title}
 
-      if error == 'logoutError'
-        .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
-      if githubRepoError
-        .alert.alert-danger(role='alert') #{githubRepoError}
-      if userInfo && userInfo.length > 0
-        p Welcome our GitHub guest: #{userInfo[0].github_username}
-        //- Logout Button
-        a.btn.btn-danger(href='/users/logout') Log Out
+        if error == 'logoutError'
+          .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
+        if githubRepoError
+          .alert.alert-danger(role='alert') #{githubRepoError}
+        if userInfo && userInfo.length > 0
+          p Welcome our GitHub guest: #{userInfo[0].github_username}
+          //- Logout Button
+          a.btn.btn-danger(href='/users/logout', style="margin-bottom: 20px;") Log Out
 
-    //- Display GitHub Repositories
-    if githubRepos && githubRepos.length > 0
-      .row.no-gutters
-        each repo in githubRepos
-          .col-lg-4.col-md-6.col-sm-12.mb-4.custom-col
-            .card.card-hover
-              .card-body
-                h5.card-title
-                  span(style="color: #207fe0; font-weight: bold; margin-right: 5px;")= repo.name
-                  if repo.private
-                    span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Private
-                  else
-                    span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Public
-                p.card-text(style="color: #636c76;")= repo.description
-                .d-flex.align-items-center.flex-wrap
-                  if repo.language
-                    .badge.custom-badge(style="color: #776c76; display: flex; align-items: center; justify-content: center;")
-                      span.circle(style="background-color: #f1df62; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;")
-                      | #{repo.language}
-                  if repo.stars > 0
-                    .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center;")
-                      i.fas.fa-star(style="margin-right: 5px;")
-                      | #{repo.stars}
-                  if repo.forks > 0
-                    .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center")
-                      i.fas.fa-code-branch(style="margin-right: 5px;")
-                      | #{repo.forks}
-    else
-      .alert.alert-info(role='alert') No repositories found.
+      //- Display GitHub Repositories
+      if githubRepos && githubRepos.length > 0
+        .row.no-gutters
+          each repo in githubRepos
+            .col-lg-4.col-md-6.col-sm-12.mb-4.custom-col
+              .card.card-hover
+                .card-body
+                  h5.card-title
+                    span(style="color: #207fe0; font-weight: bold; margin-right: 5px;")= repo.name
+                    if repo.private
+                      span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Private
+                    else
+                      span.badge(style="background-color: white; color: #636c76; border: 1px solid #d0d7de; border-radius: 10px;padding: 5px; font-size: 13px;") Public
+                  p.card-text(style="color: #636c76;")= repo.description
+                  .d-flex.align-items-center.flex-wrap
+                    if repo.language
+                      .badge.custom-badge(style="color: #776c76; display: flex; align-items: center; justify-content: center;")
+                        span.circle(style="background-color: #f1df62; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px;")
+                        | #{repo.language}
+                    if repo.stars > 0
+                      .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center;")
+                        i.fas.fa-star(style="margin-right: 5px;")
+                        | #{repo.stars}
+                    if repo.forks > 0
+                      .badge.custom-badge(style="color: #776c76; font-weight: bold; display: flex; align-items: center; justify-content: center")
+                        i.fas.fa-code-branch(style="margin-right: 5px;")
+                        | #{repo.forks}
+      else
+        .alert.alert-info(role='alert') No repositories found.
 
   //- Custom Styles
   style.
@@ -60,6 +61,9 @@ block content
     .custom-col {
       padding-left: 10px;
       padding-right: 10px;
+    }
+    .custom-container {
+      max-width: 1000px;
     }
     .container-fluid {
       padding-left: 60px;
