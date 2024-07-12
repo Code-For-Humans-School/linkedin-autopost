@@ -19,6 +19,8 @@ router.get('/', async function(req, res, next) {
   // Try to fetch the user's login info, if not eixsting, redirect to the login page
   const userInfo = req.session.user;
   const { error } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const perPage = parseInt(req.query.per_page) || 15;
 
   if (!userInfo || userInfo.length == 0) {
     return res.redirect('/users/login');
@@ -28,18 +30,35 @@ router.get('/', async function(req, res, next) {
 
   try {
     // Once I have the userInfo, I wan to fetch all the repositories and show them.
-    const githubRepos = await fetchGitHubRepos(userInfo[0].github_token);
-    res.render('index', { error, title: 'Express', userInfo, githubRepos}); 
+    const githubRepos = await fetchGitHubRepos(userInfo[0].github_token, page, perPage);
+    res.render('index', { 
+        title: 'Express',
+        error,  
+        userInfo, 
+        githubRepos,
+        currentPage: page,
+        perPage
+      }); 
 
   } catch (fetchError) {
     console.error('Error while fetching GitHub repositories:', fetchError);
-    res.render('index', { error, title: 'Express', userInfo, githubRepos: [], githubRepoError: 'Error fetching repositories'}); 
+    res.render('index', { 
+      title: 'Express',
+      error, 
+      userInfo, 
+      githubRepos: [], 
+      githubRepoError: 'Error fetching repositories',
+      currentPage: page,
+      perPage
+    }); 
   }
 
 });
 
 // Function to fetch user's GitHub repositories
-async function fetchGitHubRepos(githubToken) {
+// To make the function more robust and user-friendly and void potential issues from missing parameters,
+// set default values for page and perPage
+async function fetchGitHubRepos(githubToken, page = 1, perPage = 15) {
   try {
     const response = await axios.get('https://api.github.com/user/repos', {
       headers: {
@@ -47,7 +66,9 @@ async function fetchGitHubRepos(githubToken) {
       },
       params: {
         visibility: 'all', // to get both public and private repositories
-        affiliation: 'owner' // to ensure that only repositories owned by the authenticated user are returned.
+        affiliation: 'owner', // to ensure that only repositories owned by the authenticated user are returned.
+        page: page,
+        per_page: perPage
       }
     });
 
