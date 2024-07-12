@@ -48,6 +48,23 @@ block content
       else
         .alert.alert-info(role='alert') No repositories found.
 
+      //- Pagination Component
+      .pagination-container
+        .d-flex.justify-content-between.align-items-center
+          .form-group
+            label(for="perPageSelect") Repositories per page:
+            select.form-control#perPageSelect(name="per_page", onchange="location = this.value;")
+              option(value=`/?page=1&per_page=15` selected=perPage==15) 15
+              option(value=`/?page=1&per_page=30` selected=perPage==30) 30
+              option(value=`/?page=1&per_page=50` selected=perPage==50) 50
+          .pagination
+            if currentPage > 1
+              li.page-item
+                a.page-link(href=`/?page=${currentPage-1}&per_page=${perPage}`) Previous
+            if githubRepos.length == perPage
+              li.page-item
+                a.page-link(href=`/?page=${currentPage+1}&per_page=${perPage}`) Next
+
   //- Custom Styles
   style.
     .custom-badge:not(:first-child) {
