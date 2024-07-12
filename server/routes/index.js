@@ -47,7 +47,7 @@ async function fetchGitHubRepos(githubToken) {
       },
       params: {
         visibility: 'all', // to get both public and private repositories
-        type: 'owner' // to ensure that only repositories owned by the authenticated user are returned.
+        affiliation: 'owner' // to ensure that only repositories owned by the authenticated user are returned.
       }
     });
 
