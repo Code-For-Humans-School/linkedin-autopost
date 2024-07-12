@@ -1,25 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .container.d-flex.justify-content-center.align-items-center.min-vh-100
+    .text-center
+      h1= title
+      p Welcome to #{title}
 
-  if error == 'logoutError'
-    .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
-  if userInfo
-    p Welcome our GitHub guest: #{userInfo[0].github_username}
-    //- Logout Button
-    button.btn.btn-danger(data-bs-toggle='modal', data-bs-target='#logoutModal') Log Out
-
-    //- Logout Confirmation Modal
-    .modal.fade(id='logoutModal', tabindex='-1', aria-labelledby='logoutModalLabel', aria-hidden='true')
-      .modal-dialog
-        .modal-content
-          .modal-header
-            h5.modal-title(id='logoutModalLabel') Confirm Log Out
-            button.btn-close(type='button', data-bs-dismiss='modal', aria-label='Close')
-          .modal-body
-            p Are you sure you want to log out?
-          .modal-footer
-            button.btn.btn-secondary(type='button', data-bs-dismiss='modal') Cancel
-            a.btn.btn-danger(href='/users/logout') Confirm Log Out
+      if error == 'logoutError'
+        .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
+      if userInfo
+        p Welcome our GitHub guest: #{userInfo[0].github_username}
+        //- Logout Button
+        a.btn.btn-danger(href='/users/logout') Log Out
