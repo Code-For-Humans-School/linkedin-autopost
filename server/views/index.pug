@@ -8,7 +8,8 @@ block content
 
       if error == 'logoutError'
         .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
-      if userInfo
+      if userInfo && userInfo.length > 0
         p Welcome our GitHub guest: #{userInfo[0].github_username}
         //- Logout Button
         a.btn.btn-danger(href='/users/logout') Log Out
+
