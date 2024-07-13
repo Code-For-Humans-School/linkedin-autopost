@@ -32,7 +32,7 @@ router.get('/', async function(req, res, next) {
     // Once I have the userInfo, I wan to fetch all the repositories and show them.
     const githubRepos = await fetchGitHubRepos(userInfo[0].github_token, page, perPage);
     res.render('index', { 
-        title: 'Express',
+        title: 'LinkedIn Auto-Post App',
         error,  
         userInfo, 
         githubRepos,
@@ -43,7 +43,7 @@ router.get('/', async function(req, res, next) {
   } catch (fetchError) {
     console.error('Error while fetching GitHub repositories:', fetchError);
     res.render('index', { 
-      title: 'Express',
+      title: 'LinkedIn Auto-Post App',
       error, 
       userInfo, 
       githubRepos: [], 

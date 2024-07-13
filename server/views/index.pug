@@ -5,7 +5,6 @@ block content
     .container.custom-container
       .text-center
         h1= title
-        p Welcome to #{title}
 
         if error == 'logoutError'
           .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
@@ -22,9 +21,9 @@ block content
           each repo in githubRepos
             .col-lg-4.col-md-6.col-sm-12.mb-4.custom-col
               .card.card-hover
-                .card-body
+                .card-body(data-repo-name=repo.name, webhook-repo-status=repo.hasSetWebhook, onclick="showModal(event)")
                   h5.card-title
-                    span(style="color: #207fe0; font-weight: bold; margin-right: 5px;")= repo.name
+                    span(style="color: #207fe0; font-weight: bolder; margin-right: 5px;")= repo.name
                     if repo.hasSetWebhook
                       i.bi.bi-check2-all(style="font-weight: bolder; font-size: 24px; color: green;")
                   p.card-text(style="color: #636c76;")= repo.description
@@ -76,6 +75,20 @@ block content
             else 
               //- Empty placeholder to maintain spacing
               li.page-item
+
+      //- Modal for editing repository
+      .modal#repoModal(tabindex="-1" role="dialog" style="display: none;")
+        .modal-dialog(role="document")
+          .modal-content
+            .modal-header(style="padding: 10px 0px 10px 10px; border: none;")
+              h6.modal-title(style="color: #212121; font-weight: bold;") Auto-Post Config
+            .modal-body(style="padding: 0px 10px; font-size: 14px; border: none;")
+              span#repoWebhookStatus(style="color: #808080;") Placeholder for webhook setup info: You haven't setup webhook for the repo
+              span#repoNameModal(style="color: #207fe0; font-weight: bolder;") Placeholder for the repo name: sample-repo-name
+              span#repoWebhookAction(style="color: #808080;") Placeholder for the repo action: Do you want to set it up now? 
+            .modal-footer(style="display: flex; justify-content: flex-end; padding: 5px; border: none;")
+              button.btn.btn-outline-secondary.btn-sm(type="button", data-dismiss="modal", style="border: none;  font-weight: bolder;") Cancel
+              button.btn.btn-outline-primary.btn-sm#repoActionButton(type="button", style="border: none;  font-weight: bolder;") Confirm
               
 
   //- Custom Styles
@@ -126,3 +139,88 @@ block content
       align-items: center;
       justify-content: space-between;
     }
+
+    .modal {
+      position: fixed;
+      z-index: 1050;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      outline: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-dialog {
+      margin: 20px;
+      max-width: 450px;
+    }
+    .modal-content {
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.3rem;
+      box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+      outline: 0;
+    }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 1rem;
+      border-bottom: 1px solid #dee2e6;
+      border-top-left-radius: 0.3rem;
+      border-top-right-radius: 0.3rem;
+    }
+    .modal-body {
+      position: relative;
+      padding: 1rem;
+      line-height: 20px;
+    }
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 1rem;
+      border-top: 1px solid #dee2e6;
+    }
+
+  //- Custom Script
+  script.
+    function showModal(event) {
+      const repoName = event.currentTarget.getAttribute('data-repo-name');
+      const hasSetWebhook = event.currentTarget.getAttribute('webhook-repo-status');
+      if(hasSetWebhook != null) {
+        document.getElementById('repoWebhookStatus').innerText = "You've already set up linkedin-auto-post for the repository ";
+        document.getElementById('repoNameModal').innerText = repoName;
+        document.getElementById('repoWebhookAction').innerText = ". Do you want to revoke it?";
+
+        document.getElementById('repoActionButton').innerText = "Revoke"
+      } else {
+        document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
+        document.getElementById('repoNameModal').innerText = repoName;
+        document.getElementById('repoWebhookAction').innerText = ". Do you want to set it up now?";
+
+        document.getElementById('repoActionButton').innerText = "Set Now"
+      }
+      //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
+      const modal = document.getElementById('repoModal');
+      modal.style.display = 'flex';
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('repoModal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    document.querySelectorAll('.modal .close, .modal .btn-outline-secondary').forEach(button => {
+      button.onclick = function() {
+        const modal = document.getElementById('repoModal');
+        modal.style.display = 'none';
+      }
+    });
