@@ -7,7 +7,9 @@ block content
         h1= title
 
         if error == 'logoutError'
-          .alert.alert-danger(role='alert') There was an error logging you out. Please try again.
+          .alert.alert-danger(role='alert') There was an error logging you out! Please try again!
+        if error == 'setWebhookError'
+          .alert.alert-danger(role='alert') There was an error setting webhooks for the selected repo! Please try again!
         if githubRepoError
           .alert.alert-danger(role='alert') #{githubRepoError}
         if userInfo && userInfo.length > 0
@@ -87,7 +89,7 @@ block content
               span#repoNameModal(style="color: #207fe0; font-weight: bolder;") Placeholder for the repo name: sample-repo-name
               span#repoWebhookAction(style="color: #808080;") Placeholder for the repo action: Do you want to set it up now? 
             .modal-footer(style="display: flex; justify-content: flex-end; padding: 5px; border: none;")
-              button.btn.btn-outline-secondary.btn-sm(type="button", data-dismiss="modal", style="border: none;  font-weight: bolder;") Cancel
+              button.btn.btn-outline-secondary.btn-sm(type="button", data-dismiss="modal", style="border: none; font-weight: bolder;") Cancel
               button.btn.btn-outline-primary.btn-sm#repoActionButton(type="button", style="border: none;  font-weight: bolder;") Confirm
               
 
@@ -199,16 +201,49 @@ block content
         document.getElementById('repoWebhookAction').innerText = ". Do you want to revoke it?";
 
         document.getElementById('repoActionButton').innerText = "Revoke"
+        // Update the href attribute of the button
+        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true`;
+        document.getElementById('repoWebhookAction').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
+
       } else {
         document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
         document.getElementById('repoNameModal').innerText = repoName;
         document.getElementById('repoWebhookAction').innerText = ". Do you want to set it up now?";
 
         document.getElementById('repoActionButton').innerText = "Set Now"
+        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false`;
+        document.getElementById('repoWebhookAction').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
       }
       //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
       const modal = document.getElementById('repoModal');
       modal.style.display = 'flex';
+    }
+
+    function handleRepoAction(repoName, hasSetWebhook) {
+      fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const repoCard = document.querySelector(`.card-body[data-repo-name="${repoName}"]`);
+            const webhookIcon = repoCard.querySelector('.bi-check2-all');
+            if (hasSetWebhook) {
+              if (webhookIcon) webhookIcon.remove();
+            } else {
+              if (!webhookIcon) {
+                const icon = document.createElement('i');
+                icon.className = 'bi bi-check2-all';
+                icon.style = 'font-weight: bolder; font-size: 24px; color: green;';
+                repoCard.querySelector('h5.card-title').appendChild(icon);
+              }
+            }
+            repoCard.setAttribute('data-webhook-repo-status', data.hasSetWebhook);
+            document.getElementById('repoModal').style.display = 'none';
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('repoModal').style.display = 'none';
+        });
     }
 
     window.onclick = function(event) {
