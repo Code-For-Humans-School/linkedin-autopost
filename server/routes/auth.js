@@ -227,22 +227,51 @@ router.get('/linkedin/callback', async (req, res) => {
                 if (rows.length > 0) {
                     // If the user's account already exists, we need to refresh the linkedin_token first, 
                     // since we have a new one each time the user finishes the authentication from LinkedIn
-                    const [updatedRows, updatedFields] = await pool.query('UPDATE users SET linkedin_token = ? WHERE linkedin_id = ?', [accessToken, linkedinId]);
-                    console.log('If the user already exists, update the linkedin_token with the new one.');
-                    console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
-                    console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
+                    try {
+                        // Get a connection from the pool
+                        const connection = await pool.getConnection();
 
+                        try {
+                            // Start a transaction
+                            await connection.beginTransaction();
 
-                    req.session.user = updatedRows;
-                    req.session.save((err) => {
-                        if (err) {
-                            console.error('Error during session store:', err);
-                            res.redirect('/users/login?error=sessionError');
-                        } else {
-                            console.log('Session saved successfully!');
-                            res.redirect('/');
+                            // Perform the UPDATE operation to refresh linkedin_token
+                            await connection.query('UPDATE users SET linkedin_token = ? WHERE linkedin_id = ?', [accessToken, linkedinId]);
+
+                            // Perform the SELECT query to fetch the updated row
+                            const [updatedRows, updatedFields] = await connection.query('SELECT * FROM users WHERE linkedin_id = ?', [linkedinId]);
+                            console.log('If the user already exists, update the linkedin_token with the new one.');
+                            console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
+                            console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
+
+                            // Commit the transaction
+                            await connection.commit();
+
+                            // Update sesstion store
+                            req.session.user = updatedRows;
+                            req.session.save((err) => {
+                                if (err) {
+                                    console.error('Error during session store:', err);
+                                    res.redirect('/users/login?error=sessionError');
+                                } else {
+                                    console.log('Session saved successfully!');
+                                    res.redirect('/');
+                                }
+                            });
+
+                        } catch (error) {
+                            // Rollback the transaction in case of error
+                            await connection.rollback();
+                            console.error('Error during transaction:', error);
+                        } finally {
+                            // Release the connection back to the pool
+                            connection.release();
                         }
-                    });
+
+                    } catch (poolError) {
+                        console.error('Error getting connection from pool:', poolError);
+                    }
+
                 } else {
                     // Otherwise, retrieve the github credentials from session store and save all of them in local DB
                     await pool.query(
