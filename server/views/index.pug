@@ -203,7 +203,7 @@ block content
         document.getElementById('repoActionButton').innerText = "Revoke"
         // Update the href attribute of the button
         //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true`;
-        document.getElementById('repoWebhookAction').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
 
       } else {
         document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
@@ -212,7 +212,7 @@ block content
 
         document.getElementById('repoActionButton').innerText = "Set Now"
         //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false`;
-        document.getElementById('repoWebhookAction').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
       }
       //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
       const modal = document.getElementById('repoModal');
