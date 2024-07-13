@@ -75,7 +75,14 @@ router.get('/github/callback', async (req, res) => {
         // DONOT use results.length > 0, since its length will always be greater than 0
         if (rows.length > 0) { 
             // Save the user info in the session store
-            req.session.user = rows;
+            // Each time the user finishes the authentication, a new accessToken will be generated, 
+            // thus we need to update the original github_token with this new accessToken
+            const [updatedRows, updatedFields] = await pool.query('UPDATE users SET github_token = ? WHERE github_username = ?', [accessToken, githubUsername]);
+            console.log('If the user already exists, update the github_token with the new one.');
+            console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
+            console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
+
+            req.session.user = updatedRows;
             req.session.save((err) => {
                 if (err) {
                     console.error('Session save error:', err);
@@ -189,7 +196,15 @@ router.get('/linkedin/callback', async (req, res) => {
                 console.log('Database query fields when login via LinkedIn:', fields);
 
                 if (rows.length > 0) {
-                    req.session.user = rows;
+                    // If the user's account already exists, we need to refresh the linkedin_token first, 
+                    // since we have a new one each time the user finishes the authentication from LinkedIn
+                    const [updatedRows, updatedFields] = await pool.query('UPDATE users SET linkedin_token = ? WHERE linkedin_id = ?', [accessToken, linkedinId]);
+                    console.log('If the user already exists, update the linkedin_token with the new one.');
+                    console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
+                    console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
+
+
+                    req.session.user = updatedRows;
                     req.session.save((err) => {
                         if (err) {
                             console.error('Error during session store:', err);
