@@ -77,21 +77,50 @@ router.get('/github/callback', async (req, res) => {
             // Save the user info in the session store
             // Each time the user finishes the authentication, a new accessToken will be generated, 
             // thus we need to update the original github_token with this new accessToken
-            const [updatedRows, updatedFields] = await pool.query('UPDATE users SET github_token = ? WHERE github_username = ?', [accessToken, githubUsername]);
-            console.log('If the user already exists, update the github_token with the new one.');
-            console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
-            console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
 
-            req.session.user = updatedRows;
-            req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    res.redirect('/users/login?error=sessionError');
-                } else {
-                    console.log('Session saved successfully!');
-                    res.redirect('/');
+            try {
+                // Get a connection from the pool
+                const connection = await pool.getConnection();
+                try {   
+                    // Start a transaction
+                    await connection.beginTransaction();
+
+                    // Perform the UPDATE operation to refresh github_token
+                    await connection.query('UPDATE users SET github_token = ? WHERE github_username = ?', [accessToken, githubUsername]);
+
+                    // Perform a SELECT query to retrieve the updated row data
+                    const [updatedRows, updatedFields] = await connection.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
+                    console.log('If the user already exists, update the github_token with the new one.');
+                    console.log('The updated rows returned by MySQL server after executing the UPDATE clause:', updatedRows);
+                    console.log('The updated fields returned by MySQL server after executing the UPDATE clause:', updatedFields);
+
+                    // Commit the transaction
+                    await connection.commit();
+
+                    req.session.user = updatedRows;
+                    req.session.save((err) => {
+                        if (err) {
+                            console.error('Session save error:', err);
+                            res.redirect('/users/login?error=sessionError');
+                        } else {
+                            console.log('Session saved successfully!');
+                            res.redirect('/');
+                        }
+                    });
+
+                } catch (error) {
+                    // Rollback the transaction in case of error
+                    await connection.rollback();
+                    console.error('Error during transaction:', error);
+                } finally {
+                    // Release the connection back to the pool
+                    connection.release();
                 }
-            });
+            } catch (poolError) {
+                console.error('Error getting connection from pool:', poolError);
+            }
+
+           
         } else {
             // Store Github username and access token in session for later use with LinkedIn OAuth
             req.session.githubUsername = githubUsername;
