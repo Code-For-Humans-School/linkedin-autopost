@@ -55,6 +55,69 @@ router.get('/', async function(req, res, next) {
 
 });
 
+router.get('/webhook/config', async (req, res) => {
+  const { repo, hassetwebhook } = req.query;
+  try {
+    const githubUsername = req.session.user[0].github_username;
+    const githubToken = req.session.user[0].github_token;
+    const payloadUrl = process.env.GITHUB_WEBHOOK_PAYLOAD_URL;
+    let setWebhookAlready = hassetwebhook === 'true';
+
+    // If the user hasn't set up the webhook for this repo, set it up now
+    if (!setWebhookAlready) {
+      await axios.post(`https://api.github.com/repos/${githubUsername}/${repo}/hooks`, 
+        {
+          name: 'web',
+          active: true,
+          events: ['push'],
+          config: {
+            url: payloadUrl,
+            content_type: 'json'
+          }
+        },
+        {
+          headers: {
+            Authorization: `token ${githubToken}`
+          }
+        });
+
+        setWebhookAlready = true; // Mark as webhook set after creation
+
+    } else {
+      // If the webhook is already set, delete the existing webhook
+      const hooksResponse = await axios.get(`https://api.github.com/repos/${githubUsername}/${repo}/hooks`, {
+        headers: {
+          Authorization: `token ${githubToken}`
+        }
+      });
+
+      const hooks = hooksResponse.data;
+      const targetHook = hooks.find(h => h.config.url === payloadUrl && h.config.content_type === 'json');
+
+      if (targetHook) {
+        await axios.delete(`https://api.github.com/repos/${githubUsername}/${repo}/hooks/${targetHook.id}`, {
+          headers: {
+            Authorization: `token ${githubToken}`
+          }
+        });
+
+        setWebhookAlready = false;
+      }
+    }
+
+    res.json({
+      success: true,
+      hasSetWebhook: setWebhookAlready
+    });
+    
+  } catch (error) {
+    console.error(`Error while setting webhooks for repos via /webhook/config`, error);
+    res.redirect('/?error=setWebhookError');
+  }
+
+});
+
+
 // Function to fetch user's GitHub repositories
 // To make the function more robust and user-friendly and void potential issues from missing parameters,
 // set default values for page and perPage
