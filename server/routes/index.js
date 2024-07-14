@@ -57,6 +57,10 @@ router.get('/', async function(req, res, next) {
 
 router.get('/webhook/config', async (req, res) => {
   const { repo, hassetwebhook} = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const perPage = parseInt(req.query.per_page) || 15;
+
+
   try {
     const githubUsername = req.session.user[0].github_username;
     const githubToken = req.session.user[0].github_token;
@@ -105,10 +109,11 @@ router.get('/webhook/config', async (req, res) => {
       }
     }
 
-    res.json({
-      success: true,
-      hasSetWebhook: setWebhookAlready
-    });
+    // res.json({
+    //   success: true,
+    //   hasSetWebhook: setWebhookAlready
+    // });
+    res.redirect(`/?page=${page}&per_page=${perPage}`);
     
   } catch (error) {
     console.error(`Error while setting webhooks for repos via /webhook/config`, error);
