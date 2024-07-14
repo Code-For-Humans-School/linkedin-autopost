@@ -293,7 +293,7 @@ router.post('/webhook', async (req, res) => {
     console.log('Mastodon Post Url: ', mastodonPostUrl);
 
     try {
-      const [rows, fields] = pool.query(`SELECT * FROM users WHERE github_username = ?`, [githubUsername]);
+      const [rows, fields] = await pool.query(`SELECT * FROM users WHERE github_username = ?`, [githubUsername]);
       if (rows.length > 0){
         // Retrieve the linkedin-access-token 
         const linkedinAccessToken = rows[0].linkedin_token;
