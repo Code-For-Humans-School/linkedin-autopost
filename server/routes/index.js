@@ -240,14 +240,14 @@ async function postToMastodon(messageToPost) {
 }
 
 // Function to make a post on LinkedIn
-async function postToLinkedIn(message, accessToken) {
+async function postToLinkedIn(message, accessToken, linkedinId) {
   // Truncate the message if it's longer than 2000 characters
   const truncatedMessage = truncateMessageFromEnd(message, 1500);
 
   const url = 'https://api.linkedin.com/v2/ugcPosts';
   
   const payload = {
-    author: `urn:li:person:${req.session.user[0].linkedin_id}`,
+    author: `urn:li:person:${linkedinId}`,
     lifecycleState: 'PUBLISHED',
     specificContent: {
       'com.linkedin.ugc.ShareContent': {
@@ -297,9 +297,10 @@ router.post('/webhook', async (req, res) => {
       if (rows.length > 0){
         // Retrieve the linkedin-access-token 
         const linkedinAccessToken = rows[0].linkedin_token;
+        const linkedinId = rows[0].linkedin_id;
 
         // Post to LinkedIn on behalf of the user
-        const postResponse = await postToLinkedIn(expandedMessage, linkedinAccessToken);
+        const postResponse = await postToLinkedIn(expandedMessage, linkedinAccessToken, linkedinId);
         console.log('LinkedIn post response:', postResponse.data);
 
         // Send a success response to GitHub
