@@ -236,7 +236,7 @@ block content
                 repoCard.querySelector('h5.card-title').appendChild(icon);
               }
             }
-            repoCard.setAttribute('data-webhook-repo-status', data.hasSetWebhook);
+            repoCard.setAttribute('webhook-repo-status', data.hasSetWebhook);
             document.getElementById('repoModal').style.display = 'none';
           }
         })
