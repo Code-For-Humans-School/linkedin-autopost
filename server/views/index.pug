@@ -195,8 +195,6 @@ block content
     function showModal(event, currentPage, perPage) {
       const repoName = event.currentTarget.getAttribute('data-repo-name');
       const hasSetWebhook = event.currentTarget.getAttribute('webhook-repo-status');
-      const currentPage = currentPage || 1;
-      const perPage = perPage || 15;
 
       if(hasSetWebhook != null) {
         document.getElementById('repoWebhookStatus').innerText = "You've already set up linkedin-auto-post for the repository ";
