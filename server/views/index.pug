@@ -219,7 +219,7 @@ block content
       modal.style.display = 'flex';
     }
 
-    function handleRepoAction(repoName, hasSetWebhook, currentPage, perPage) {
+    function handleRepoAction(repoName, hasSetWebhook, currentPage = 1, perPage = 15) {
       fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}`)
         .then(response => response.json())
         .then(data => {
