@@ -183,10 +183,10 @@ async function fetchGitHubRepos(githubToken, page = 1, perPage = 15) {
 }
 
 // Function to expand commit message and generate a full post using ChatGPT API
-async function expandCommitMessage(commitMessage) {
+async function expandCommitMessage(commitMessage, repoUrlLink) {
   try {
     const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: `You are a professional LinkedIn user, help me expand the following GitHub commit message into a full post that can be posted on LinkedIn. Remember that You are an experienced software engineer so your post should tell people about this recent GitHub commit and show your expertise in the tech field. Don't try to include any external links, although it might be helpful, it's not necessary and you should avoid generating any links. Also note that the post should be professional, do use a relatively formal tone, and to make those posts more human-like, you need to slightly change your way of expression each time you try to generate the post. And you only need to return the post itself, you don't need to include any leading or tailing explanations associated with the post, if I want them, I'll just ask you, but since I didn't, you never include those. Keep in mind that the total character limit is 800, make the post clean and concise. That means, the entire post that you return to me, should strictly have no more than 800 characters. Below is the commit message to be expanded:  ${commitMessage}` }],
+      messages: [{ role: "system", content: `You are a professional LinkedIn user, help me expand the following GitHub commit message into a full post that can be posted on LinkedIn. Remember that You are an experienced software engineer so your post should tell people about this recent GitHub commit and show your expertise in the tech field. Don't try to include any external links, although it might be helpful, it's not necessary and you should avoid generating any links. Also note that the post should be professional, do use a relatively formal tone, and to make those posts more human-like, you need to slightly change your way of expression each time you try to generate the post. And you only need to return the post itself, you don't need to include any leading or tailing explanations associated with the post, if I want them, I'll just ask you, but since I didn't, you never include those. Keep in mind that the total character limit is 1200, make the post clean and concise. That means, the entire post that you return to me, should strictly have no more than 1200 characters. Below is the commit message to be expanded:  ${commitMessage}. And here's the GitHub repo's url link ${repoUrlLink}, please add it as a clickable url link to the GitHub repo that we're currently working on so that people can easily find us.` }],
       model: "gpt-4o",
     });
 
@@ -282,10 +282,12 @@ router.post('/webhook', async (req, res) => {
   // Retrieve the GitHub username
   const githubUsername = req.body.repository.owner.login;
   // const linkedinAccessToken = req.session.user[0].linkedin_token;
+  // Retrieve the repo url link
+  const repoUrlLink = req.body.repository.html_url;
 
   try {
     // Expand the commit message into a full post 
-    const expandedMessage = await expandCommitMessage(commitMessage);
+    const expandedMessage = await expandCommitMessage(commitMessage, repoUrlLink);
     console.log('Expanded Message:', expandedMessage);
     
     // Post to Mastodon
