@@ -272,7 +272,7 @@ async function postToLinkedIn(message, accessToken) {
 }
 
 
-/* */
+/* Route to process webhook data sent from GitHub */
 router.post('/webhook', async (req, res) => {
   console.log('The webhook has been invoked successfully.');
   console.log('Data received from GitHub webhook:', req.body);
