@@ -109,11 +109,11 @@ router.get('/webhook/config', async (req, res) => {
       }
     }
 
-    // res.json({
-    //   success: true,
-    //   hasSetWebhook: setWebhookAlready
-    // });
-    res.redirect(`/?page=${page}&per_page=${perPage}`);
+    res.json({
+      success: true,
+      hasSetWebhook: setWebhookAlready
+    });
+    // res.redirect(`/?page=${page}&per_page=${perPage}`);
     
   } catch (error) {
     console.error(`Error while setting webhooks for repos via /webhook/config`, error);

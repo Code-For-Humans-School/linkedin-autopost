@@ -203,8 +203,8 @@ block content
 
         document.getElementById('repoActionButton').innerText = "Revoke"
         // Update the href attribute of the button
-        document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true&page=${currentPage}&per_page=${perPage}`;
-        //- document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
+        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true&page=${currentPage}&per_page=${perPage}`;
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true, ${currentPage}, ${perPage})`);
 
       } else {
         document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
@@ -212,43 +212,42 @@ block content
         document.getElementById('repoWebhookAction').innerText = ". Do you want to set it up now?";
 
         document.getElementById('repoActionButton').innerText = "Set Now"
-        document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false&page=${currentPage}&per_page=${perPage}`;
-        //- document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
+        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false&page=${currentPage}&per_page=${perPage}`;
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false, ${currentPage}, ${perPage})`);
       }
       //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
       const modal = document.getElementById('repoModal');
       modal.style.display = 'flex';
     }
 
-    //- function handleRepoAction(repoName, hasSetWebhook) {
-    //-   fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}`)
-    //-     .then(response => response.json())
-    //-     .then(data => {
-    //-       if (data.success) {
-    //-         //- const repoCard = document.querySelector(`.card-body[data-repo-name="${repoName}"]`);
-    //-         //- const webhookIcon = repoCard.querySelector('.bi-check2-all');
-    //-         //- if (hasSetWebhook) {
-    //-         //-   if (webhookIcon) webhookIcon.remove();
-    //-         //- } else {
-    //-         //-   if (!webhookIcon) {
-    //-         //-     const icon = document.createElement('i');
-    //-         //-     icon.className = 'bi bi-check2-all';
-    //-         //-     icon.style = 'font-weight: bolder; font-size: 24px; color: green;';
-    //-         //-     repoCard.querySelector('h5.card-title').appendChild(icon);
-    //-         //-   }
-    //-         //- }
-    //-         //- repoCard.setAttribute('webhook-repo-status', data.hasSetWebhook);
-    //-         const page = parseInt(currentPage) || 1;
-    //-         const perpage = parseInt(perPage) || 15;
-    //-         window.location.href = `/?page=${page}&per_page=${perpage}`;
-    //-         document.getElementById('repoModal').style.display = 'none';
-    //-       }
-    //-     })
-    //-     .catch(error => {
-    //-       console.error('Error:', error);
-    //-       document.getElementById('repoModal').style.display = 'none';
-    //-     });
-    //- }
+    function handleRepoAction(repoName, hasSetWebhook, currentPage, perPage) {
+      fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}&page=${currentPage}&per_page=${perPage}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            //- const repoCard = document.querySelector(`.card-body[data-repo-name="${repoName}"]`);
+            //- const webhookIcon = repoCard.querySelector('.bi-check2-all');
+            //- if (hasSetWebhook) {
+            //-   if (webhookIcon) webhookIcon.remove();
+            //- } else {
+            //-   if (!webhookIcon) {
+            //-     const icon = document.createElement('i');
+            //-     icon.className = 'bi bi-check2-all';
+            //-     icon.style = 'font-weight: bolder; font-size: 24px; color: green;';
+            //-     repoCard.querySelector('h5.card-title').appendChild(icon);
+            //-   }
+            //- }
+            //- repoCard.setAttribute('webhook-repo-status', data.hasSetWebhook);
+
+            window.location.href = `/?page=${currentPage}&per_page=${perPage}`;
+            document.getElementById('repoModal').style.display = 'none';
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('repoModal').style.display = 'none';
+        });
+    }
 
     window.onclick = function(event) {
       const modal = document.getElementById('repoModal');
