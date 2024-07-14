@@ -4,6 +4,7 @@ var axios = require('axios');
 require('dotenv').config();
 var OpenAI = require('openai');
 const { createRestAPIClient } = require('masto');
+const pool = require('../db.js');  // Import the MySQL connection pool
 
 // Initialize OpenAI with the API key
 const openai = new OpenAI();
@@ -185,7 +186,7 @@ async function fetchGitHubRepos(githubToken, page = 1, perPage = 15) {
 async function expandCommitMessage(commitMessage) {
   try {
     const completion = await openai.chat.completions.create({
-      messages: [{ role: "system", content: `You are a professional Mastodon user, help me expand the following text into a full post that can be posted on Mastodon. Remember that You are an experienced software engineer and you are collaborating with teammates all cross the globe. Each teammate can push a commit to the code base, so when you try to expand the commit message, you should use we, instead of I, since this is the official Mastodon account of the whole team. Also note that the post should be professional, do use a relatively formal tone, and to make those posts more human-like, you need to slightly change your way of expression each time you try to generate the post. And you only need to return the post itself, you don't need to include any leading or tailing explanations associated with the post, if I want them, I'll just ask you, but since I didn't, you never include those. Keep in mind that the total character limit is 500, make the post clean and concise. That means, the entire post that you return to me, including those # tags at the end, should strictly have no more than 500 characters. Below is the commit message to be expanded: ${commitMessage}` }],
+      messages: [{ role: "system", content: `You are a professional LinkedIn user, help me expand the following GitHub commit message into a full post that can be posted on LinkedIn. Remember that You are an experienced software engineer so your post should tell people about this recent GitHub commit and show your expertise in the tech field. Don't try to include any external links, although it might be helpful, it's not necessary and you should avoid generating any links. Also note that the post should be professional, do use a relatively formal tone, and to make those posts more human-like, you need to slightly change your way of expression each time you try to generate the post. And you only need to return the post itself, you don't need to include any leading or tailing explanations associated with the post, if I want them, I'll just ask you, but since I didn't, you never include those. Keep in mind that the total character limit is 800, make the post clean and concise. That means, the entire post that you return to me, should strictly have no more than 800 characters. Below is the commit message to be expanded:  ${commitMessage}` }],
       model: "gpt-4o",
     });
 
@@ -238,12 +239,48 @@ async function postToMastodon(messageToPost) {
   }
 }
 
+// Function to make a post on LinkedIn
+async function postToLinkedIn(message, accessToken) {
+  // Truncate the message if it's longer than 2000 characters
+  const truncatedMessage = truncateMessageFromEnd(message, 1500);
+
+  const url = 'https://api.linkedin.com/v2/ugcPosts';
+  
+  const payload = {
+    author: `urn:li:person:${req.session.user[0].linkedin_id}`,
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': {
+        shareCommentary: {
+          text: truncatedMessage
+        },
+        shareMediaCategory: 'NONE'
+      }
+    },
+    visibility: {
+      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+    }
+  };
+
+  const headers = {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+    'X-Restli-Protocol-Version': '2.0.0'
+  };
+
+  return await axios.post(url, payload, { headers });
+}
+
+
 /* */
 router.post('/webhook', async (req, res) => {
   console.log('The webhook has been invoked successfully.');
   console.log('Data received from GitHub webhook:', req.body);
   const commitMessage = req.body.head_commit.message;
   console.log(commitMessage);
+
+  // Retrieve the GitHub username
+  const githubUsername = req.body.repository.owner.login;
   // const linkedinAccessToken = req.session.user[0].linkedin_token;
 
   try {
@@ -255,8 +292,27 @@ router.post('/webhook', async (req, res) => {
     const mastodonPostUrl = await postToMastodon(expandedMessage);
     console.log('Mastodon Post Url: ', mastodonPostUrl);
 
-    // Send a success response to GitHub
-    res.status(200).send('Webhook reveived and processed.');
+    try {
+      const [rows, fields] = pool.query(`SELECT * FROM users WHERE github_username = ?`, [githubUsername]);
+      if (rows.length > 0){
+        // Retrieve the linkedin-access-token 
+        const linkedinAccessToken = rows[0].linkedin_token;
+
+        // Post to LinkedIn on behalf of the user
+        const postResponse = await postToLinkedIn(expandedMessage, linkedinAccessToken);
+        console.log('LinkedIn post response:', postResponse.data);
+
+        // Send a success response to GitHub
+        res.status(200).send('Webhook reveived and processed.');
+      } else {
+        console.error(`Cannot find account info for ${githubUsername}, make sure you are the owner of the repo and have successfully created an account.`);
+      }
+
+
+    } catch (dbError) {
+      console.error('Error while querying DB for linkedin_token with the given github_username:', dbError);
+    }
+
   } catch (error) {
     // Log the error to the server
     console.error('Error processing webhook:', error);
