@@ -195,6 +195,9 @@ block content
     function showModal(event) {
       const repoName = event.currentTarget.getAttribute('data-repo-name');
       const hasSetWebhook = event.currentTarget.getAttribute('webhook-repo-status');
+      const currentPage = currentPage || 1;
+      const perPage = perPage || 15;
+
       if(hasSetWebhook != null) {
         document.getElementById('repoWebhookStatus').innerText = "You've already set up linkedin-auto-post for the repository ";
         document.getElementById('repoNameModal').innerText = repoName;
@@ -202,8 +205,8 @@ block content
 
         document.getElementById('repoActionButton').innerText = "Revoke"
         // Update the href attribute of the button
-        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true`;
-        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
+        document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true&page=${currentPage}&per_page=${perPage}`;
+        //- document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
 
       } else {
         document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
@@ -211,8 +214,8 @@ block content
         document.getElementById('repoWebhookAction').innerText = ". Do you want to set it up now?";
 
         document.getElementById('repoActionButton').innerText = "Set Now"
-        //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false`;
-        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
+        document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false&page=${currentPage}&per_page=${perPage}`;
+        //- document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
       }
       //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
       const modal = document.getElementById('repoModal');
