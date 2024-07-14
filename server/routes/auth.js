@@ -50,6 +50,7 @@ router.get('/github/callback', async (req, res) => {
         });
         // Extract the user's GitHub username
         const githubUsername = githubResponse.data.login;
+        const githubProfileUrl = githubResponse.data.avatar_url;
         console.log(githubResponse.data);
         console.log(githubUsername);
 
@@ -86,7 +87,7 @@ router.get('/github/callback', async (req, res) => {
                     await connection.beginTransaction();
 
                     // Perform the UPDATE operation to refresh github_token
-                    await connection.query('UPDATE users SET github_token = ? WHERE github_username = ?', [accessToken, githubUsername]);
+                    await connection.query('UPDATE users SET github_token = ?, github_profileurl = ? WHERE github_username = ?', [accessToken, githubProfileUrl, githubUsername]);
 
                     // Perform a SELECT query to retrieve the updated row data
                     const [updatedRows, updatedFields] = await connection.query('SELECT * FROM users WHERE github_username = ?', [githubUsername]);
@@ -125,6 +126,7 @@ router.get('/github/callback', async (req, res) => {
             // Store Github username and access token in session for later use with LinkedIn OAuth
             req.session.githubUsername = githubUsername;
             req.session.githubAccessToken = accessToken;
+            req.session.githubProfileUrl = githubProfileUrl;
             req.session.save((err) => {
                 if (err) {
                     console.log('Error saving session data:', err);
@@ -178,7 +180,7 @@ function getKey(header, callback) {
 router.get('/linkedin/callback', async (req, res) => {
     // Extract the temporary authorization code from LinkedIn
     const { code } = req.query;
-    const { githubUsername, githubAccessToken } = req.session;
+    const { githubUsername, githubAccessToken, githubProfileUrl } = req.session;
 
     try {
         // Exchange the authorization code for an access token
@@ -275,8 +277,8 @@ router.get('/linkedin/callback', async (req, res) => {
                 } else {
                     // Otherwise, retrieve the github credentials from session store and save all of them in local DB
                     await pool.query(
-                        'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token)',
-                        [githubUsername, linkedinId, githubAccessToken, accessToken]
+                        'INSERT INTO users (github_username, linkedin_id, github_token, linkedin_token, github_profileurl) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE github_token = VALUES(github_token), linkedin_token = VALUES(linkedin_token), github_profileurl = VALUES(github_profileurl)',
+                        [githubUsername, linkedinId, githubAccessToken, accessToken, githubProfileUrl]
                     );
     
                     // Once it's done, there's no need to keep the session data, destroy them.

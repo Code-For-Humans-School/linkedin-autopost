@@ -32,7 +32,7 @@ router.get('/', async function(req, res, next) {
     // Once I have the userInfo, I wan to fetch all the repositories and show them.
     const githubRepos = await fetchGitHubRepos(userInfo[0].github_token, page, perPage);
     res.render('index', { 
-        title: 'LinkedIn Auto-Post App',
+        title: 'LinkedIn Auto-Post',
         error,  
         userInfo, 
         githubRepos,
@@ -43,7 +43,7 @@ router.get('/', async function(req, res, next) {
   } catch (fetchError) {
     console.error('Error while fetching GitHub repositories:', fetchError);
     res.render('index', { 
-      title: 'LinkedIn Auto-Post App',
+      title: 'LinkedIn Auto-Post',
       error, 
       userInfo, 
       githubRepos: [], 
@@ -244,6 +244,7 @@ router.post('/webhook', async (req, res) => {
   console.log('Data received from GitHub webhook:', req.body);
   const commitMessage = req.body.head_commit.message;
   console.log(commitMessage);
+  // const linkedinAccessToken = req.session.user[0].linkedin_token;
 
   try {
     // Expand the commit message into a full post 
