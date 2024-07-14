@@ -88,6 +88,10 @@ block content
               span#repoWebhookStatus(style="color: #808080;") Placeholder for webhook setup info: You haven't setup webhook for the repo
               span#repoNameModal(style="color: #207fe0; font-weight: bolder;") Placeholder for the repo name: sample-repo-name
               span#repoWebhookAction(style="color: #808080;") Placeholder for the repo action: Do you want to set it up now? 
+              //- Circular progress component
+              .d-flex.flex-column.justify-content-center.align-items-center(style="margin-top: 10px;")
+                .spinner-border.text-primary#loadingSpinner(role="status" style="display: none;")
+                span#loadingText(style="color: #808080; margin-top: 5px; display: none;") Loading...
             .modal-footer(style="display: flex; justify-content: flex-end; padding: 5px; border: none;")
               button.btn.btn-outline-secondary.btn-sm(type="button", data-dismiss="modal", style="border: none; font-weight: bolder;") Cancel
               button.btn.btn-outline-primary.btn-sm#repoActionButton(type="button", style="border: none;  font-weight: bolder;") Confirm
@@ -223,6 +227,11 @@ block content
     function handleRepoAction(repoName, hasSetWebhook, currentPage, perPage) {
       // Save the scroll position
       const scrollY = window.scrollY;
+
+      // Show the spinner and disable the button
+      document.getElementById('loadingSpinner').style.display = 'block';
+      document.getElementById('loadingText').style.display = 'block';
+      document.getElementById('repoActionButton').disabled = true;
 
       fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}&page=${currentPage}&per_page=${perPage}`)
         .then(response => response.json())
