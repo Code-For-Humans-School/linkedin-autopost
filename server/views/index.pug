@@ -221,6 +221,9 @@ block content
     }
 
     function handleRepoAction(repoName, hasSetWebhook, currentPage, perPage) {
+      // Save the scroll position
+      const scrollY = window.scrollY;
+
       fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}&page=${currentPage}&per_page=${perPage}`)
         .then(response => response.json())
         .then(data => {
@@ -239,6 +242,9 @@ block content
             //- }
             //- repoCard.setAttribute('webhook-repo-status', data.hasSetWebhook);
 
+            // Store the scroll position in localStorage
+            localStorage.setItem("scrollY", scrollY);
+            // Refresh the page
             window.location.href = `/?page=${currentPage}&per_page=${perPage}`;
             document.getElementById('repoModal').style.display = 'none';
           }
@@ -260,5 +266,13 @@ block content
       button.onclick = function() {
         const modal = document.getElementById('repoModal');
         modal.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const scrollY = localStorage.getItem('scrollY');
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+        localStorage.removeItem('scrollY'); // Clean up after restoring
       }
     });
