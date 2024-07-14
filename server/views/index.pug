@@ -203,7 +203,7 @@ block content
         document.getElementById('repoActionButton').innerText = "Revoke"
         // Update the href attribute of the button
         //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=true`;
-        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true, ${currentPage}, ${perPage})`);
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', true)`);
 
       } else {
         document.getElementById('repoWebhookStatus').innerText = "You haven't set up linkedin-auto-post for the repository ";
@@ -212,14 +212,14 @@ block content
 
         document.getElementById('repoActionButton').innerText = "Set Now"
         //- document.getElementById('repoWebhookAction').href = `/webhook/config?repo=${repoName}&hassetwebhook=false`;
-        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false, ${currentPage}, ${perPage})`);
+        document.getElementById('repoActionButton').setAttribute('onclick', `handleRepoAction('${repoName}', false)`);
       }
       //- document.getElementById('repoNameModal').innerText = repoName + " - Do you want to modify it?";
       const modal = document.getElementById('repoModal');
       modal.style.display = 'flex';
     }
 
-    function handleRepoAction(repoName, hasSetWebhook, currentPage = 1, perPage = 15) {
+    function handleRepoAction(repoName, hasSetWebhook) {
       fetch(`/webhook/config?repo=${repoName}&hassetwebhook=${hasSetWebhook}`)
         .then(response => response.json())
         .then(data => {
@@ -237,7 +237,9 @@ block content
             //-   }
             //- }
             //- repoCard.setAttribute('webhook-repo-status', data.hasSetWebhook);
-            window.location.href = `/?page=${currentPage}&per_page=${perPage}`;
+            const page = parseInt(currentPage) || 1;
+            const perpage = parseInt(perPage) || 15;
+            window.location.href = `/?page=${page}&per_page=${perpage}`;
             document.getElementById('repoModal').style.display = 'none';
           }
         })
