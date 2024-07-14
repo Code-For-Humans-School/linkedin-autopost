@@ -23,7 +23,7 @@ block content
           each repo in githubRepos
             .col-lg-4.col-md-6.col-sm-12.mb-4.custom-col
               .card.card-hover
-                .card-body(data-repo-name=repo.name, webhook-repo-status=repo.hasSetWebhook, onclick="showModal(event)")
+                .card-body(data-repo-name=repo.name, webhook-repo-status=repo.hasSetWebhook, onclick=`showModal(event, ${currentPage}, ${perPage})`)
                   h5.card-title
                     span(style="color: #207fe0; font-weight: bolder; margin-right: 5px;")= repo.name
                     if repo.hasSetWebhook
@@ -192,7 +192,7 @@ block content
 
   //- Custom Script
   script.
-    function showModal(event) {
+    function showModal(event, currentPage, perPage) {
       const repoName = event.currentTarget.getAttribute('data-repo-name');
       const hasSetWebhook = event.currentTarget.getAttribute('webhook-repo-status');
       const currentPage = currentPage || 1;
