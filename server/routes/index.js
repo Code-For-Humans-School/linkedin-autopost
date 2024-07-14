@@ -56,7 +56,7 @@ router.get('/', async function(req, res, next) {
 });
 
 router.get('/webhook/config', async (req, res) => {
-  const { repo, hassetwebhook } = req.query;
+  const { repo, hassetwebhook} = req.query;
   try {
     const githubUsername = req.session.user[0].github_username;
     const githubToken = req.session.user[0].github_token;
