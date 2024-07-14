@@ -3,19 +3,29 @@ extends layout
 block content
   .container-fluid
     .container.custom-container
-      .text-center
-        h1= title
+      //- Profile Dropdown Menu
+      .profile-dropdown
+        button#dropdownMenuButton.btn.btn-link(type='button', onclick='toggleDropdown()')
+          img(src=userInfo[0].github_profileurl, alt='Profile Image', class='rounded-circle', style='width: 40px; height: 40px;')
+        .dropdown-content#dropdownContent
+          .dropdown-item(style="font-weight: bolder;") Hi, #{userInfo[0].github_username}
+          .dropdown-divider(style="margin-left: 10px;")
+          a.dropdown-item(href='/users/logout', style="display: flex; align-items: center;") 
+            i.fa-solid.fa-arrow-right-from-bracket(style='margin-right: 8px;')
+            span Log Out
 
+      .text-center(style="margin-top: 30px; margin-bottom: 40px;")
+        h1= title
         if error == 'logoutError'
           .alert.alert-danger(role='alert') There was an error logging you out! Please try again!
         if error == 'setWebhookError'
           .alert.alert-danger(role='alert') There was an error setting webhooks for the selected repo! Please try again!
         if githubRepoError
           .alert.alert-danger(role='alert') #{githubRepoError}
-        if userInfo && userInfo.length > 0
-          p Welcome our GitHub guest: #{userInfo[0].github_username}
-          //- Logout Button
-          a.btn.btn-danger(href='/users/logout', style="margin-bottom: 20px;") Log Out
+        //- if userInfo && userInfo.length > 0
+        //-   p Welcome our GitHub guest: #{userInfo[0].github_username}
+        //-   //- Logout Button
+        //-   a.btn.btn-danger(href='/users/logout', style="margin-bottom: 20px;") Log Out
 
       //- Display GitHub Repositories
       if githubRepos && githubRepos.length > 0
@@ -99,6 +109,45 @@ block content
 
   //- Custom Styles
   style.
+    .profile-dropdown {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      //- z-index: 1051;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1052;
+      border-radius: 10px;
+      right: 0px;
+      top: 50px;
+      overflow: hidden;
+      padding-right: 10px;
+    }
+    .dropdown-content .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      color: black;
+      border-radius: 10px;
+      margin: 5px;
+    }
+    .dropdown-content .dropdown-item:hover {
+      background-color: #f5f5f5;
+    }
+    .dropdown-content .dropdown-divider {
+      height: 1px;
+      margin: .5rem 0;
+      //- overflow: hidden;
+      background-color: #eceeef;
+    }
+    .show {
+      display: block;
+    }
     .custom-badge:not(:first-child) {
       margin-left: 0px;
     }
@@ -196,6 +245,10 @@ block content
 
   //- Custom Script
   script.
+    function toggleDropdown() {
+        document.getElementById('dropdownContent').classList.toggle('show');
+    }
+
     function showModal(event, currentPage, perPage) {
       const repoName = event.currentTarget.getAttribute('data-repo-name');
       const hasSetWebhook = event.currentTarget.getAttribute('webhook-repo-status');
@@ -265,6 +318,20 @@ block content
     }
 
     window.onclick = function(event) {
+      // If the user clicks outside of the drop down menu, close the drop down menu
+      if (!event.target.matches('#dropdownMenuButton') && !event.target.closest('.profile-dropdown')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        //- dropdowns.style.display = 'none';
+        //- document.getElementById('dropdownContent').classList.toggle('show');
+        for (var i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+          }
+        }
+      }
+
+      // If the user clicks places outside of the .modal-dialog, which is .modal, close the dialog window
       const modal = document.getElementById('repoModal');
       if (event.target == modal) {
         modal.style.display = 'none';
