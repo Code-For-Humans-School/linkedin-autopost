@@ -2,7 +2,7 @@ extends layout
 block content
 
   .login-container.vh-100.d-flex.align-items-center.justify-content-center
-    .card.text-center.bg-light.text-dark.shadow-lg(style="width: 22rem; border-radius: 1rem;")
+    .card.text-center.bg-light.text-dark.shadow-lg(style="width: 22rem; border-radius: 1rem; margin: auto 30px;")
       .card-body.p-5
         h2.fw-bold.mb-2.text-uppercase Register
         p.text-dark-50.mb-5 Please finish the following authorizations!
@@ -47,8 +47,3 @@ block content
         p.mt-3
           | If you've already done the authorization, 
           a(href='/users/login' class='text-dark fw-bold') login now
-
-  style.
-    body {
-      background: linear-gradient(to right, #f8f9fa, #e9ecef) !important;
-    }
