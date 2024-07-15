@@ -2,10 +2,10 @@ extends layout
 block content
 
   .login-container.vh-100.d-flex.align-items-center.justify-content-center
-    .card.text-center.bg-dark.text-white.shadow-lg(style="width: 22rem; border-radius: 1rem;")
+    .card.text-center.bg-light.text-dark.shadow-lg(style="width: 22rem; border-radius: 1rem;")
       .card-body.p-5
         h2.fw-bold.mb-2.text-uppercase Login
-        p.text-white-50.mb-5 Please log in using one of the following options!
+        p.text-dark-50.mb-5 Please log in using one of the following options!
 
         .d-flex.flex-column.align-items-center
           if error == 'githubLoginFailed'
@@ -14,13 +14,13 @@ block content
           else if error == 'sessionError'
             p.text-danger.mb-1 Session error! 
             p.text-danger.mb-3 Please try the following options again!
-          button.btn.btn-outline-light.btn-lg.mb-3.w-100(type='button' onclick="window.location.href='/auth/github'")
+          button.btn.btn-outline-dark.btn-lg.mb-3.w-100(type='button' onclick="window.location.href='/auth/github'")
             i.fab.fa-github.fa-lg(style='margin-right: 8px')
             | Login with Github
-          button.btn.btn-outline-light.btn-lg.w-100(type='button' onclick="window.location.href='/auth/linkedin'")
+          button.btn.btn-outline-dark.btn-lg.w-100(type='button' onclick="window.location.href='/auth/linkedin'")
             i.fab.fa-linkedin.fa-lg(style='margin-right: 8px') 
             | Login with LinkedIn
 
         p.mt-3
           | If you haven't created an account yet, 
-          a(href='/users/register' class='text-white fw-bold') create one
+          a(href='/users/register' class='text-dark fw-bold') create one
